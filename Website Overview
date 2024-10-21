@@ -1,4 +1,4 @@
-User ineraction starts.
+## User ineraction starts.
 1. User enters
 2. Login page or singup page for the Consumer.
     i. Signup page:
@@ -6,7 +6,7 @@ User ineraction starts.
     ii. Login page
         a. Username, password
 
-The user journey begins.
+## **The user journey begins.**
 1. Home page:
     a. Navbar:
         i. Playwise Logo linked to the home page.
@@ -20,7 +20,36 @@ The user journey begins.
         ix. Liked Venues.
     b.Main Page:
         i. Dates section : Choose the date.
-        ii.Available Venues: The nearest venues available to you currently sorted accordingly.
+        ii. Available Venues: The nearest venues available to you currently sorted accordingly.
         iii. Play Again : Just a side place to fill the gap.
-        
+    c. Footer:
+        -> COPYRIGHTS: Hardik Mahajan
+        -> Privacy Policy and Terms and Conditions of Use.
 
+***When user clicks on a venue.***
+2. Details Section:
+    a. Name of the hall.
+    b. Image(s) of the Venue. 
+    c. Details:
+        -> Vendor information including Name, Contact, Email, and Address of the Venue.
+    d. Amenities:
+        -> All the amenities available on the badminton court.
+    e. Number of courts.
+    f. Mats or wooden floor confirmation.
+    g. Pricing starting.
+    h. Exact location on maps.
+3. Review Section:
+    a. User reviews.
+    b. Leave a rating section.
+
+***When user wants to select the date:***
+4. i. Dropdown of the calender.
+   ii. Choose the date.
+   iii. Close button / search button for the selected date.
+
+***When user wants to change the password:***
+5. i. Ask for the previous password first.
+   ii. If forgot password, then send it to the email address.
+   iii. If (correctPassword), allowChangePassword() / allowChangeUsername() with 2 step confirmation.
+   iv. Password changed succesfully and logout to check the password.
+   v. If(wrongPassword), go to step(ii.)
