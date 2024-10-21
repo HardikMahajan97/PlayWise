@@ -1,0 +1,26 @@
+User ineraction starts.
+1. User enters
+2. Login page or singup page for the Consumer.
+    i. Signup page:
+        a. Name, email, username, contact, password, city, location access
+    ii. Login page
+        a. Username, password
+
+The user journey begins.
+1. Home page:
+    a. Navbar:
+        i. Playwise Logo linked to the home page.
+        ii. Search Bar to search about any specific court to book it.
+        iii. IF(loggedIn) logout page; else login/signup page. Redirect to the User interaction journey.
+        iv. Filter out section. 
+        v. Select location if you want.
+        vi. Previous bookings
+        vii. Change Password / Username
+        viii. Profile Section
+        ix. Liked Venues.
+    b.Main Page:
+        i. Dates section : Choose the date.
+        ii.Available Venues: The nearest venues available to you currently sorted accordingly.
+        iii. Play Again : Just a side place to fill the gap.
+        
+
