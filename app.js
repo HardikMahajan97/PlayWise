@@ -9,3 +9,8 @@ app.get("/", (req,res) => {
 app.listen(port, (req,res) => {
     console.log("Listening on port " + port + ". Welcome to PlayWise!");
 });
+
+app.get("/home", (req, res) => {
+    console.log("Home Page!");
+    res.send("Welcome to PlayWise!");
+});
