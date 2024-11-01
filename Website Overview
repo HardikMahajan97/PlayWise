@@ -2,9 +2,10 @@
 1. User enters
 2. Login page or singup page for the Consumer.
     i. Signup page:
-        a. Name, email, username, contact, password, city, location access
+        a. Name, email, username, contact, age, password, city, location access
     ii. Login page
         a. Username, password
+        b. Forgot Password? Send OTP/Password through email.
 
 ## **The user journey begins.**
 1. Home page:
@@ -15,7 +16,7 @@
         iv. Filter out section. 
         v. Select location if you want.
         vi. Previous bookings
-        vii. Change Password / Username
+        vii. Change personal information.
         viii. Profile Section
         ix. Liked Venues.
     b.Main Page:
@@ -31,13 +32,14 @@
     a. Name of the hall.
     b. Image(s) of the Venue. 
     c. Details:
-        -> Vendor information including Name, Contact, Email, and Address of the Venue.
+        -> Vendor information including Name, Contact, and Address of the Venue.
     d. Amenities:
         -> All the amenities available on the badminton court.
     e. Number of courts.
     f. Mats or wooden floor confirmation.
     g. Pricing starting.
     h. Exact location on maps.
+    i. Book your court.
 3. Review Section:
     a. User reviews.
     b. Leave a rating section.
@@ -53,3 +55,46 @@
    iii. If (correctPassword), allowChangePassword() / allowChangeUsername() with 2 step confirmation.
    iv. Password changed succesfully and logout to check the password.
    v. If(wrongPassword), go to step(ii.)
+
+-------------------------------------------------------------------------------------------------------
+
+## Vendor Interaction Journey:
+1. Login / Signup page:
+    a. Signup:
+        i. Name, email, username, contact, age, password, city, location access
+    b. Login:
+        i. Username, Password.
+        ii. Forgot Password? Send OTP/Password through email.
+## Vendor Journey Starts:
+2. Home Page:
+    a. Navbar:
+        i. Playwise Logo linked to the home page.
+        ii. Search Bar to search about any specific court.
+        iii. IF(loggedIn) logout page; else login/signup page. Redirect to the Vendor interaction journey.
+        iv. Add a new court*
+        v. Update personal information(password, username, contact, venue location, pictures, etc)
+        vi. My courts.
+    b. Dashboard:
+        i. Current listings.
+        ii. Total Shuttlers in your PlayWise Realm.
+        iii. If multiple courts are available, then, particular hall booking count.
+        iv. Total earnings.
+        v. Current shuttlers vibing to your courts.
+        vi. Available Slots and court(s)
+        vii. 
+    c. Footer:
+        -> COPYRIGHTS: Hardik Mahajan
+        -> Terms and conditions of use.
+
+**Add a new Court**
+3. Court Details:
+    i. Address, City, State, Country.
+    ii. Name of the Hall.
+    iii. Images of the Hall.
+    iv. Available time slots : Weekdays, and on weekends and their pricing.
+    v. Amenities 
+    vi. Number of courts and Mat type.
+    vii. Price 
+    viii. Location access on Map.
+    ix. Any additional information or advantages.
+
