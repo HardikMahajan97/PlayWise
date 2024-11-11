@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.1",
+    "mongodb": "^6.10.0",
     "mongoose": "^8.5.1",
     "nodemon": "^3.1.4",
     "playwise": "file:"

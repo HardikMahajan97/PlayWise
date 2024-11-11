@@ -13,4 +13,5 @@ app.listen(port, (req,res) => {
 app.get("/home", (req, res) => {
     console.log("Home Page!");
     res.send("Welcome to PlayWise!");
+    
 });

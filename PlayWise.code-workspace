@@ -2,6 +2,14 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../JAVAVS/Learn_DSA/C++_DSA"
 		}
-	]
+	],
+	"settings": {
+		"files.associations": {
+			"ostream": "cpp"
+		}
+	}
 }
