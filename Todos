@@ -1,3 +1,12 @@
 ## TODOS
-**Going on mongo atlas and setting up the database**
-**Connection is remaining so go to the mongoose connection page and connect it and start entering the data**
+
+**Build the POST login API**
+**Start desgining the forgot password page, through OTP.**
+**Start desgining the current listing page for the vendor**
+
+# Done
+***Established the databse connection successfully and initialised the collection on ATLAS***
+***Developed the vendor schema model in vendorSignup.js file***
+***Dot-env file configured and secrets stored in succesfully***
+***Configured the passport sessions and passportlocalmongoose along with local strategy***
+***Built the POST signup API***
