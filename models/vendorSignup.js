@@ -16,7 +16,7 @@ const vendorSchema = new Schema(
     },
     contact: {
         type:Number,
-        unique: true,
+        // unique: true,
         required: true,
     } ,
     age: {

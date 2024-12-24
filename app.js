@@ -8,7 +8,8 @@ import passportLocalMongoose from "passport-local-mongoose";
 import session from "express-session";
 import mongoStore from "connect-mongo";
 import LocalStrategy from "passport-local";
-
+import twilio from "twilio";
+import {v4 as uuidv4} from "uuid";
 //************************File imports****************** */
 import VendorInfo from './models/vendorSignup.js';
 
@@ -44,7 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 const store = mongoStore.create({
     mongoUrl : dbUrl,
     crypto: {
-        secret : process.env.SESSION_KEY,  //Encryption
+        secret : process.env.SESSION_KEY,  //Encrypted by crypto.
     },
     touchAfter : 24 * 3600,  // It is nothing but updating itself after how many time if session is not updated or database has not interacted with the server.
 });
@@ -77,6 +78,12 @@ passport.deserializeUser(VendorInfo.deserializeUser());
 
 //**************************************************** */
 
+//**************Twilio configuration****************** */
+const acc_sid = process.env.TWILIO_AC_SID;
+const acc_auth_token = process.env.TWILIO_AC_AUTH_TOKEN;
+const client = twilio(acc_sid, acc_auth_token);
+
+//**************************************************** */
 
 
 //********************************************Routers************************************************* */
@@ -109,26 +116,31 @@ app.get("/signup", (req, res) => {
 });
 
 
-app.post("/signup",  async (req, res) => {
+app.post("/signup", async (req, res) => {
     const {Name, email, username, contact, age, password, city, location} = req.body;
     
     if(!Name || !email || !username || !contact || !age || !password || !city || !location){
-        return res.status(404).json({success: false, message:"Vendor Not listed porperly!"});
+        return res.status(400).json({success: false, message:"Vendor Not listed properly!"});
     }
-    try{
-        const newVendor = new VendorInfo({Name, email, username, contact, age, password, city, location});
-        // console.log(newVendor);
+    try {
+        const newVendor = new VendorInfo({Name, email, username, contact, age, city, location});
+        console.log("New Vendor:", newVendor);
+        
         const registeredVendor = await VendorInfo.register(newVendor, password);
-        // console.log(registeredVendor);
-        return res.status(200).json({success : true, data : registeredVendor});
-        // console.log(registeredVendor);
+        console.log("Registered Vendor:", registeredVendor);
+        
+        req.login(registeredVendor, (err) => {
+            if(err){
+                console.error("Login error:", err);
+                return res.status(500).json({success: false, message: "Error during login", error: err.message});
+            }
+            return res.status(200).json({success: true, data: registeredVendor});
+        });
     }
-    catch(e){
-        return res.status(500).json({success: false, message:"Internal Server Error"});
+    catch(e) {
+        console.error("Registration error:", e);
+        return res.status(500).json({success: false, message: "Internal Server Error", error: e.message});
     }
-    // const newVendor = new VendorInfo({name, username, password, email, contact, age, city, location});
-    // await newVendor.save();
-    // console.log(newVendor);
 });
 
 
@@ -138,9 +150,9 @@ app.get("/login", (req,res) => {
 
 
 app.post("/login", (req, res, next) => {
-    const {email, password} = req.body;
+    const {username, password} = req.body;
 
-    if(!email || !password){
+    if(!username || !password){
         return res.status(404).json({success:false, message:"Enter all the fields"});
     }
 
@@ -167,3 +179,42 @@ app.post("/login", (req, res, next) => {
         });
     })(req, res, next);
 });
+
+// app.post("/login", passport.authenticate('locals', ())
+
+app.get("/forgotPassword", (req, res) => {
+    //render the forgot password page
+});
+
+app.post("/forgotPassword", async (req, res) => {
+    const {contact} = req.body;
+
+    const otp = uuidv4().replace(/-/g, "").slice(0, 6);
+    try {
+        const message = await client.messages.create({
+            body: `Your OTP is ${otp}. It is valid for 10 minutes.`,
+            to: contact,     // Recipient's phone number
+            from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio number
+        });
+        console.log("Message sent:", message.sid);
+        //render the password through sms if verified.
+        return res.status(200).json({success: true, message:`Your otp is sent successfully, OTP: ${message.sid} OR ${otp}.`});
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        return res.status(400).json({success:false, message:`Something went wrong! ${error.message}`});
+    }
+
+    //After the vendor clicks on send otp while, giving the contact number, then we will verify both,
+    //the contact number and the otp, and after that we will send the password sms to the vendor.
+
+    //NOTE: this is just the route for the otp generation and sending the otp, verification is remaining.
+});
+
+
+app.post("/verifyOTP", (req, res) => {
+    //This function will verify the otp and contact number and send the appropriate response.
+    const {otp, contact} = req.body;
+});
+
+
+

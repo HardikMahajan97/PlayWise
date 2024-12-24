@@ -1,7 +1,6 @@
 ## TODOS
 
-**Build the POST login API**
-**Start desgining the forgot password page, through OTP.**
+**Verify the otp and send the password to the vendor**
 **Start desgining the current listing page for the vendor**
 
 # Done
@@ -10,3 +9,5 @@
 ***Dot-env file configured and secrets stored in succesfully***
 ***Configured the passport sessions and passportlocalmongoose along with local strategy***
 ***Built the POST signup API***
+***Built the POST login API***
+***Sent the otp from backend to the vendor mobile number***
