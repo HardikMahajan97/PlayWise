@@ -11,8 +11,9 @@ import LocalStrategy from "passport-local";
 import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
 //************************File imports****************** */
-import VendorInfo from './models/vendorSignup.js';
-
+import VendorInfo from './models/vendor/vendorSignup.js';
+import Dbotp from './models/vendor/otp.js';
+import BadmintonHall from './models/vendor/halls.js';
 dotenv.config();
 // const dbUrl = "mongodb+srv://hardikmahajan97:tzut2fvAqLl8mfPe@playwisecluster.zfjnl.mongodb.net/PlayWise?retryWrites=true&w=majority&appName=PlayWiseCluster";
 // const dbUrl = 'mongodb://localhost:27017';
@@ -175,6 +176,7 @@ app.post("/login", (req, res, next) => {
             }
 
             // Authentication successful
+            //redirect the home page or the required page here.
             return res.status(200).json({ success: true, message: "Login Success" });
         });
     })(req, res, next);
@@ -182,14 +184,40 @@ app.post("/login", (req, res, next) => {
 
 // app.post("/login", passport.authenticate('locals', ())
 
-app.get("/forgotPassword", (req, res) => {
+app.get("/forgotPassword/:id", async (req, res) => {
     //render the forgot password page
+
+    //First check if the id is correct or not and then redirect the forgot password form.
+
+    const {id} = req.params;
+    console.log("Id sent by the client");
+    console.log(id);
+    const checkId = await VendorInfo.findById(id);
+    console.log(`This the response returned from the database ${checkId._id}`);
+    if(id == checkId._id) {
+        return res.status(200).send("Id matched");
+        //redirect the forgot passwrod form
+    }
+    else{
+        return res.status(400).json({Success:false});
+    }
 });
 
 app.post("/forgotPassword", async (req, res) => {
     const {contact} = req.body;
 
+    //Verify the contact is present or not.
+    // const dbcontact = await VendorInfo.findOne({contact:contact});
+    // if(!contact || !dbcontact || (contact != dbcontact)){
+    //     return res.status(404).json({success:false, message: "Contact not found"});
+    // }
+    // console.log(`Contact from the client: ${contact} |||||| and contact from the database ${dbcontact}.`);
+    
+
+    //otp generation and slicing
     const otp = uuidv4().replace(/-/g, "").slice(0, 6);
+
+    await Dbotp.save(otp);    
     try {
         const message = await client.messages.create({
             body: `Your OTP is ${otp}. It is valid for 10 minutes.`,
@@ -204,17 +232,94 @@ app.post("/forgotPassword", async (req, res) => {
         return res.status(400).json({success:false, message:`Something went wrong! ${error.message}`});
     }
 
-    //After the vendor clicks on send otp while, giving the contact number, then we will verify both,
-    //the contact number and the otp, and after that we will send the password sms to the vendor.
-
-    //NOTE: this is just the route for the otp generation and sending the otp, verification is remaining.
 });
 
 
-app.post("/verifyOTP", (req, res) => {
+//This function is not complete and tested, dont use it before testing.
+app.post("/verifyOTP", async(req, res) => {
     //This function will verify the otp and contact number and send the appropriate response.
-    const {otp, contact} = req.body;
+    const {OTP} = req.body;
+
+    const dbotp = await Dbotp.findOne({OTP:OTP});
+    if(!dbotp || !OTP || ( dbotp.OTP != OTP ) ){
+        return res.status(404).json({success:false, message:"OTP not found"});
+    }
+    //send the password from the database by decoding it using passport. See the docs
+    //https://stackoverflow.com/questions/17828663/passport-local-mongoose-change-password
+    return res.status(200).json({success:true, message:`You are verified`});   
+
+});
+
+app.get("/vendor-home", async (req, res) => {
+    const halls = await BadmintonHall.find({});
+    res.send(halls);
+})
+
+app.get("/create-court", async (req, res) => {
+    //render the create court form 
 });
 
 
+//Create/Add A Badminton HALL for ONE vendor.
+app.post("/create-court", async (req, res) => {
+    try{
+
+    
+        const {address, 
+            city, 
+            state, 
+            country, 
+            Name, 
+            image, 
+            slot, 
+            price, 
+            amenities, 
+            numberOfCourts, 
+            matType, 
+            additionalInfo, 
+            vendorId} = req.body;
+
+        if(!address || 
+        !city || 
+        !state || 
+        !country || 
+        !Name || 
+        !image || 
+        !slot || 
+        !price || 
+        !vendorId || 
+        !amenities || 
+        !numberOfCourts || 
+        !matType)
+        {
+            return res.status(404).json({success: false, message: "Details not given properly, enter all the deatils."});
+        }
+
+        const vendor = await VendorInfo.findById(vendorId);
+        if (!vendor) {
+            return res.status(404).json({ success: false, message: "Vendor not found" });
+        }
+        const newCourt = new BadmintonHall({
+            address, 
+            city, 
+            state, 
+            country, 
+            Name, 
+            image, 
+            slot, 
+            price, 
+            amenities, 
+            numberOfCourts, 
+            matType, 
+            additionalInfo, 
+            vendorId
+        });
+        const savedHall = await newCourt.save();
+        return res.status(201).json({ success: true, data: savedHall });
+    }
+    catch(e){
+        console.error(e);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
 

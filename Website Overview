@@ -64,7 +64,7 @@
         i. Name, email, username, contact, age, password, city, location access
     b. Login:
         i. Username, Password.
-        ii. Forgot Password? Send OTP/Password through email.
+        ii. Forgot Password? Send OTP/Password.
 ## Vendor Journey Starts:
 2. Home Page:
     a. Navbar:
