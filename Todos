@@ -1,9 +1,8 @@
 ## TODOS
 
-**Verify the otp and send the password to the vendor**
 **Start desgining the current listing page for the vendor**
 
-# Done
+## Done
 ***Established the databse connection successfully and initialised the collection on ATLAS***
 ***Developed the vendor schema model in vendorSignup.js file***
 ***Dot-env file configured and secrets stored in succesfully***
@@ -11,3 +10,4 @@
 ***Built the POST signup API***
 ***Built the POST login API***
 ***Sent the otp from backend to the vendor mobile number***
+***Set the structure in MVC***
