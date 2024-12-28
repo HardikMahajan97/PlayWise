@@ -14,8 +14,11 @@ import {v4 as uuidv4} from "uuid";
 import VendorInfo from './models/vendor/vendorSignup.js';
 import Dbotp from './models/vendor/otp.js';
 import BadmintonHall from './models/vendor/halls.js';
+import User from "./models/user/userAuth.model.js"
 import hallroutes from "./routes/vendor/hall.route.js";
-import userroutes from "./routes/vendor/user.route.js";
+import vendorroutes from "./routes/vendor/user.route.js";
+import userroutes from "./routes/user/userAuth.route.js";
+import listingroute from "./routes/user/userListing.route.js";
 dotenv.config();
 // const dbUrl = "mongodb+srv://hardikmahajan97:tzut2fvAqLl8mfPe@playwisecluster.zfjnl.mongodb.net/PlayWise?retryWrites=true&w=majority&appName=PlayWiseCluster";
 // const dbUrl = 'mongodb://localhost:27017';
@@ -36,6 +39,9 @@ async function main() {
     await mongoose.connect(dbUrl);  
 }
 
+mongoose.connection.on('error', (err) => {
+    console.error('MongoDB connection error:', err);
+});
 //************************************************************* */
 let port = 5000;
 
@@ -104,11 +110,36 @@ app.get("/home", (req, res) => {
     
 });
 
-
-//User authentication routes, login and signup.
-app.use("/vendor", userroutes);
+//Vendor authentication routes, login and signup.
+app.use("/vendor", vendorroutes);
 
 //Hall Dashboard for the vendor and it's features.(CRUD)
-app.use("/vendor-home", hallroutes); 
+app.use("/vendor-home/:id", hallroutes); 
+
+//User authentication routes & updating
+app.use("/user", userroutes);
+
+//User logs in and This is what he sees. The Badminton halls available near his home,
+app.use("/listings", listingroute);
 
 
+app.get("/get-all-vendors", async (req, res) => {
+    try{
+        const vendors = await VendorInfo.find({});
+        return res.status(200).send(vendors);
+    }
+    catch(e){
+        return res.status(500).json({message: e.message});
+    }
+});
+
+app.get("/get-vendors/:id", async (req, res) => {
+    try{
+        const {id} = req.params;
+        const vendors = await VendorInfo.findById(id);
+        return res.status(200).send(vendors);
+    }
+    catch(e){
+        return res.status(500).json({message: e.message});
+    }
+});

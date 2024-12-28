@@ -17,8 +17,8 @@ import BadmintonHall from '../../models/vendor/halls.js';
 
 //**************Twilio configuration****************** */
 import client from "../../utils/twilioclient.js";
-//**************************************************** */
 dotenv.config();
+//**************************************************** */
 
 
 export const signup = async (req, res) => {
@@ -80,6 +80,18 @@ export const login = (req, res, next) => {
     })(req, res, next);
 };
 
+export const updateVendorInfo = async(req, res) => {
+    try{
+        const {id}= req.params;
+
+        const updatedVendorInfo = await VendorInfo.findByIdAndUpdate(id, {...req.body}, { writeConcern: { w: 'majority' } });
+        res.json(updatedVendorInfo);
+    }
+    catch(e){
+        res.json({message: e.message});
+    }
+};
+
 export const checkIDForVerification = async (req, res) => {
     //render the forgot password page
 
@@ -103,18 +115,9 @@ export const sendOTP = async (req, res) => {
     const {contact} = req.body;
 
     //Verify the contact is present or not.
-    // const dbcontact = await VendorInfo.findOne({contact:contact});
-    // if(!contact || !dbcontact || (contact != dbcontact)){
-    //     return res.status(404).json({success:false, message: "Contact not found"});
-    // }
-    // console.log(`Contact from the client: ${contact} |||||| and contact from the database ${dbcontact}.`);
-    
 
     //otp generation and slicing
     const otp = uuidv4().replace(/-/g, "").slice(0, 6);
-    // const genotp = new Dbotp({otp});
-    // await genotp.save();  
-    // console.log(`ACC_SID: ${process.env.TWILIO_AC_SID}, ACC_AUTH_TOKEN : ${process.env.TWILIO_AC_AUTH_TOKEN}, TWILIO_PHONE NUMBER: ${process.env.TWILIO_PHONE_NUMBER}`);
     try {
         const message = await client.messages.create({
             body: `Your OTP is ${otp}. It is valid for 10 minutes.`,
@@ -136,6 +139,7 @@ export const verifyOTP = async(req, res) => {
     //This function will verify the otp and contact number and send the appropriate response.
     const {OTP} = req.body;
 
+    //This line wont work.
     const dbotp = await Dbotp.findOne({OTP:OTP});
     if(!dbotp || !OTP || ( dbotp.OTP != OTP ) ){
         return res.status(404).json({success:false, message:"OTP not found"});

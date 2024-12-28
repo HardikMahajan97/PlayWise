@@ -11,6 +11,7 @@ Twilio failsafe code: W74NVVH198JK9HX4J7LS6L3U
 
 Twilio account_sid: AC501fda7f7f71393e69918ef5f3ccddc6
 Twilio authToken: 1042bb46e09422b1f363d2fe0734ef41
+Twilio phone number: +12702816942
 
 ## users
 1: username: hardikmahajan97

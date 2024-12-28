@@ -19,7 +19,8 @@ import BadmintonHall from '../../models/vendor/halls.js';
 //****************************************************** */
 let totalHalls = 1;
 export const showAllHalls = async (req, res) => {
-    const halls = await BadmintonHall.find({});
+    const {id} = req.params;
+    const halls = await BadmintonHall.find({vendorId: id});
     res.send(halls);
     //Dashboard is still remaining.
 };
@@ -49,7 +50,7 @@ export const createHall = async (req, res) => {
             country, 
             Name, 
             image, 
-            slot, 
+            slots, 
             price, 
             amenities, 
             numberOfCourts, 
@@ -65,7 +66,7 @@ export const createHall = async (req, res) => {
         !country || 
         !Name || 
         !image || 
-        !slot || 
+        !slots || 
         !price || 
         !vendorId || 
         !amenities || 
@@ -87,7 +88,7 @@ export const createHall = async (req, res) => {
             country, 
             Name, 
             image, 
-            slot, 
+            slots, 
             price, 
             amenities, 
             numberOfCourts, 
@@ -124,9 +125,9 @@ export const deleteHall = async (req, res) => {
     try{
         const {id} = req.params;
         await BadmintonHall.findByIdAndDelete(id);
-        if(totalHalls >= 0){
-            totalHalls = totalHalls - 1;
-        }else totalHalls = 0;
+        if(totalHalls > 0){
+            totalHalls--;
+        }
         
         return res.status(200).json({ success:true, message:`Listing Deleted. Total Halls now :${totalHalls}`});
     }

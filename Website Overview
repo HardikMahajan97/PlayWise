@@ -2,7 +2,7 @@
 1. User enters
 2. Login page or singup page for the Consumer.
     i. Signup page:
-        a. Name, email, username, contact, age, password, city, location access
+        a. Name, email, username, contact, age, password
     ii. Login page
         a. Username, password
         b. Forgot Password? Send OTP/Password through email.

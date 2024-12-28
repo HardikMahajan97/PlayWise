@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
 import VendorInfo from '../../models/vendor/vendorSignup.js';
-import { signup, login, checkIDForVerification, sendOTP, verifyOTP } from "../../controllers/vendor/user.controller.js";
+import { signup, login, checkIDForVerification, sendOTP, verifyOTP, updateVendorInfo} from "../../controllers/vendor/user.controller.js";
 
 router
     .route("/signup")
@@ -20,5 +20,9 @@ router
 router
     .route("/verifyOTP")
     .post(verifyOTP);
+
+router
+    .route("/update-vendor-info/:id")
+    .post(updateVendorInfo);
 
 export default router;

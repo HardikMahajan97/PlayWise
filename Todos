@@ -1,6 +1,7 @@
 ## TODOS
 
-**Start desgining the current listing page for the vendor**
+**Working with User's backend functionalities**
+
 
 ## Done
 ***Established the databse connection successfully and initialised the collection on ATLAS***
@@ -11,3 +12,4 @@
 ***Built the POST login API***
 ***Sent the otp from backend to the vendor mobile number***
 ***Set the structure in MVC***
+***Developed the listing page for the vendor with backend***
