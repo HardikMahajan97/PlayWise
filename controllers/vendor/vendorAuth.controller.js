@@ -11,8 +11,8 @@ import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
 
 //************************File imports****************** */
-import VendorInfo from '../../models/vendor/vendorSignup.js';
-import Dbotp from '../../models/vendor/otp.js';
+import VendorInfo from '../../models/vendor/vendorAuth.model.js';
+import Dbotp from '../../models/Otp.Model.js';
 import BadmintonHall from '../../models/vendor/halls.js';
 
 //**************Twilio configuration****************** */
@@ -104,7 +104,7 @@ export const checkIDForVerification = async (req, res) => {
     console.log(`This the response returned from the database ${checkId._id}`);
     if(id == checkId._id) {
         return res.status(200).send("Id matched");
-        //redirect the forgot passwrod form
+        //redirect the forgot password form
     }
     else{
         return res.status(400).json({Success:false});

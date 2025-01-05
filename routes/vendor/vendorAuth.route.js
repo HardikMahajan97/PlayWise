@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
-import VendorInfo from '../../models/vendor/vendorSignup.js';
-import { signup, login, checkIDForVerification, sendOTP, verifyOTP, updateVendorInfo} from "../../controllers/vendor/user.controller.js";
+import VendorInfo from '../../models/vendor/vendorAuth.model.js';
+import { signup, login, checkIDForVerification, sendOTP, verifyOTP, updateVendorInfo} from "../../controllers/vendor/vendorAuth.controller.js";
 
 router
     .route("/signup")

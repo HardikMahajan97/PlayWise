@@ -1,7 +1,13 @@
 import express from 'express';
 
 const router = express.Router({mergeParams: true});
-import {userSignup, userLogin, updateUserInfo} from "../../controllers/user/userAuth.controller.js";
+import {
+    userSignup,
+    userLogin,
+    updateUserInfo,
+    renderValidationForm, validateAndGenerateOtp,
+    renderOtpForm, verifyOtpAndSendPasswordOnContact
+} from "../../controllers/user/userAuth.controller.js";
 
 router
     .route("/signup")
@@ -20,5 +26,15 @@ router
 router
     .route("/update/:id")
     .post(updateUserInfo)
+
+router
+    .route("/forgotPassword/:id")
+    .get(renderValidationForm)
+    .post(validateAndGenerateOtp)
+    // .post(forgotPasswordRouteForUser)
+router
+    .route("/verify")
+    .get(renderOtpForm)
+    .post(verifyOtpAndSendPasswordOnContact)
 
 export default router;

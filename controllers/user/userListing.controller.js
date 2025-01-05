@@ -79,3 +79,14 @@ export const showAllListingsToTheUser = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: e.message });
     }
 };
+
+export const getOneParticularListing = async(req, res) => {
+    try{
+        const {id}= req.params;
+        const listing = await BadmintonHall.findById(id);
+        return res.status(200).json({ data:listing});
+
+    } catch(e){
+        return res.status(500).json({ success: false, message:"Internal Server Error", error: e.message });
+    }   
+} 

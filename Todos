@@ -1,11 +1,11 @@
 ## TODOS
 
-**Working with User's backend functionalities**
+**User selecting a particular listing to books or just windows it**
 
 
 ## Done
 ***Established the databse connection successfully and initialised the collection on ATLAS***
-***Developed the vendor schema model in vendorSignup.js file***
+***Developed the vendor schema model in vendorAuth.model.js file***
 ***Dot-env file configured and secrets stored in succesfully***
 ***Configured the passport sessions and passportlocalmongoose along with local strategy***
 ***Built the POST signup API***
@@ -13,3 +13,6 @@
 ***Sent the otp from backend to the vendor mobile number***
 ***Set the structure in MVC***
 ***Developed the listing page for the vendor with backend***
+***User signup and login complete***
+***Updating user information complete***
+***API for the landing page of the user is almost complete with all the listings for the user.***

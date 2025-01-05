@@ -11,12 +11,12 @@ import LocalStrategy from "passport-local";
 import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
 //************************File imports****************** */
-import VendorInfo from './models/vendor/vendorSignup.js';
-import Dbotp from './models/vendor/otp.js';
+import VendorInfo from './models/vendor/vendorAuth.model.js';
+import Dbotp from './models/Otp.Model.js';
 import BadmintonHall from './models/vendor/halls.js';
 import User from "./models/user/userAuth.model.js"
 import hallroutes from "./routes/vendor/hall.route.js";
-import vendorroutes from "./routes/vendor/user.route.js";
+import vendorroutes from "./routes/vendor/vendorAuth.route.js";
 import userroutes from "./routes/user/userAuth.route.js";
 import listingroute from "./routes/user/userListing.route.js";
 dotenv.config();

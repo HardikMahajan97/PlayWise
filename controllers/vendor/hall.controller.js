@@ -11,8 +11,8 @@ import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
 
 //************************File imports****************** */
-import VendorInfo from '../../models/vendor/vendorSignup.js';
-import Dbotp from '../../models/vendor/otp.js';
+import VendorInfo from '../../models/vendor/vendorAuth.model.js';
+import Dbotp from '../../models/Otp.Model.js';
 import BadmintonHall from '../../models/vendor/halls.js';
 
 
