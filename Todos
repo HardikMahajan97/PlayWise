@@ -1,12 +1,15 @@
 ## TODOS
 
-**User selecting a particular listing to books or just windows it**
+**Your code currently has two sides vendor and user side authentication methods. Reuse the code or generalize the code
+  to reduce redundancy**
+
+
 
 
 ## Done
-***Established the databse connection successfully and initialised the collection on ATLAS***
+***Established the database connection successfully and initialised the collection on ATLAS***
 ***Developed the vendor schema model in vendorAuth.model.js file***
-***Dot-env file configured and secrets stored in succesfully***
+***Dot-env file configured and secrets stored in successfully***
 ***Configured the passport sessions and passportlocalmongoose along with local strategy***
 ***Built the POST signup API***
 ***Built the POST login API***
@@ -16,3 +19,4 @@
 ***User signup and login complete***
 ***Updating user information complete***
 ***API for the landing page of the user is almost complete with all the listings for the user.***
+***Windowing for the user to see one listing is complete and User Authentication is completed***

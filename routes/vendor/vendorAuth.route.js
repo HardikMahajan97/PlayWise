@@ -1,7 +1,13 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
 import VendorInfo from '../../models/vendor/vendorAuth.model.js';
-import { signup, login, checkIDForVerification, sendOTP, verifyOTP, updateVendorInfo} from "../../controllers/vendor/vendorAuth.controller.js";
+import {
+    signup,
+    login,
+    updateVendorInfo,
+    validateAndGenerateOtp,
+    verifyOtpAndSendPasswordOnContact, deleteVendor
+} from "../../controllers/vendor/vendorAuth.controller.js";
 
 router
     .route("/signup")
@@ -12,17 +18,18 @@ router
     .post(login);
 
 router
-    .post("/forgotPassword", sendOTP); // POST to send OTP
+    .get("/forgotPassword/:id", validateAndGenerateOtp);
 
 router
-    .get("/forgotPassword/:id", checkIDForVerification); // GET to verify ID
-
-router
-    .route("/verifyOTP")
-    .post(verifyOTP);
+    .route("/verify")
+    .post(verifyOtpAndSendPasswordOnContact)
 
 router
     .route("/update-vendor-info/:id")
-    .post(updateVendorInfo);
+    .put(updateVendorInfo);
+
+router
+    .route("/delete/:id")
+    .delete(deleteVendor)
 
 export default router;

@@ -17,6 +17,9 @@ import BadmintonHall from '../../models/vendor/halls.js';
 
 //**************Twilio configuration****************** */
 import client from "../../utils/twilioclient.js";
+import User from "../../models/user/userAuth.model.js";
+import crypto from "crypto";
+import otpModel from "../../models/Otp.Model.js";
 dotenv.config();
 //**************************************************** */
 
@@ -80,6 +83,15 @@ export const login = (req, res, next) => {
     })(req, res, next);
 };
 
+export const deleteVendor = async(req, res) => {
+    try{
+        const {id} = req.params;
+        await VendorInfo.findByIdAndDelete(id);
+        return res.status(200).json({success:true, message:`Vendor Deleted successfully`});
+    }catch(e){
+        return res.status(500).send("InternalServerError." + e.message);
+    }
+}
 export const updateVendorInfo = async(req, res) => {
     try{
         const {id}= req.params;
@@ -92,60 +104,80 @@ export const updateVendorInfo = async(req, res) => {
     }
 };
 
-export const checkIDForVerification = async (req, res) => {
-    //render the forgot password page
 
-    //First check if the id is correct or not and then redirect the forgot password form.
 
-    const {id} = req.params;
-    console.log("Id sent by the client");
-    console.log(id);
-    const checkId = await VendorInfo.findById(id);
-    console.log(`This the response returned from the database ${checkId._id}`);
-    if(id == checkId._id) {
-        return res.status(200).send("Id matched");
-        //redirect the forgot password form
-    }
-    else{
-        return res.status(400).json({Success:false});
-    }
-};
-
-export const sendOTP = async (req, res) => {
-    const {contact} = req.body;
-
-    //Verify the contact is present or not.
-
-    //otp generation and slicing
-    const otp = uuidv4().replace(/-/g, "").slice(0, 6);
+export const validateAndGenerateOtp = async(req, res) => {
     try {
+
+        const {id} = req.params;
+        const user = await VendorInfo.findById(id);
+        const {contact} = req.body;
+        const checkPhone = await VendorInfo.findOne({contact:contact});
+        if(!user || !checkPhone){
+            return res.status(404).json({
+                success:false,
+                message:"user not found"
+            });
+        }
+
+        //Generating a 6 digit otp
+        const Otp = crypto.randomInt(100000, 999999).toString(); //6 Digit Otp
+        const expiry = new Date(Date.now() + 5 * 60 * 1000); //5 minutes expiry
+
+        const otpRecord = new otpModel({contact, Otp, expiry});
+        await otpRecord.save();
+
+        //Send the Otp through twilio client
         const message = await client.messages.create({
-            body: `Your OTP is ${otp}. It is valid for 10 minutes.`,
+            body: `Your OTP is ${Otp}. It is valid for 5 minutes.`,
             to: contact,     // Recipient's phone number
             from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio number
         });
         console.log("Message sent:", message.sid);
-        //render the password through sms if verified.
-        return res.status(200).json({success: true, message:`Your otp is sent successfully, OTP: ${message.sid} OR ${otp}.`});
-    } catch (error) {
-        console.error("Error sending OTP:", error);
+
+
+        //Render the otp form to submit the otp, instead of this;
+        return res.status(200).json({success: true, message:`Your otp is sent successfully, OTP: ${message.sid} OR ${Otp}.`});
+    }
+    catch (error) {
+        // console.error("Error sending OTP:", error);
         return res.status(400).json({success:false, message:`Something went wrong! ${error.message}`});
     }
-
 };
 
-//NOTE ::::: This function is not complete and tested, dont use it before testing.
-export const verifyOTP = async(req, res) => {
-    //This function will verify the otp and contact number and send the appropriate response.
-    const {OTP} = req.body;
 
-    //This line wont work.
-    const dbotp = await Dbotp.findOne({OTP:OTP});
-    if(!dbotp || !OTP || ( dbotp.OTP != OTP ) ){
-        return res.status(404).json({success:false, message:"OTP not found"});
+export const renderOtpForm = async(req, res) => {
+    try{
+        res.redirect("OtpForm");
     }
-    //send the password from the database by decoding it using passport. See the docs
-    //https://stackoverflow.com/questions/17828663/passport-local-mongoose-change-password
-    return res.status(200).json({success:true, message:`You are verified`});   
+    catch(e){
+        res.json({message: `${e.message}`});
+    }
+};
 
+export const verifyOtpAndSendPasswordOnContact = async (req, res) => {
+    try{
+        const {Otp} = req.body;
+        const otpRecord = await otpModel.findOne({
+            Otp: Otp,
+            isUsed: false
+        });
+
+        if (!otpRecord) {
+            throw new Error('Invalid or expired OTP');
+        }
+
+        // Check expiration
+        if (Date.now() > otpRecord.expiry) {
+            throw new Error('OTP has expired');
+        }
+
+        // Mark OTP as used
+        otpRecord.isUsed = true;
+        await otpRecord.save();
+
+        return res.status(200).json({success:true, data:otpRecord});
+    }catch(e){
+        return res.json({message:`${e.message}`});
+    }
 };

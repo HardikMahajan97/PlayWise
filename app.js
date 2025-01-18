@@ -10,6 +10,7 @@ import mongoStore from "connect-mongo";
 import LocalStrategy from "passport-local";
 import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
+import cors from 'cors';
 //************************File imports****************** */
 import VendorInfo from './models/vendor/vendorAuth.model.js';
 import Dbotp from './models/Otp.Model.js';
@@ -39,13 +40,11 @@ async function main() {
     await mongoose.connect(dbUrl);  
 }
 
-mongoose.connection.on('error', (err) => {
-    console.error('MongoDB connection error:', err);
-});
 //************************************************************* */
 let port = 5000;
 
 
+app.use(cors());
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
@@ -97,11 +96,13 @@ import client from "./utils/twilioclient.js";
 
 
 //********************************************Routers************************************************* */
-app.get("/", (req,res) => {
-    res.send("Port Checking successful ! Welcome to PlayWise");
-});
+
 app.listen(port, (req,res) => {
     console.log("Listening on port " + port + ". Welcome to PlayWise!");
+});
+
+app.get("/", (req,res) => {
+    res.send("Port Checking successful ! Welcome to PlayWise");
 });
 
 app.get("/home", (req, res) => {

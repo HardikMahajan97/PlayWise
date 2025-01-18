@@ -17,11 +17,6 @@ router
     .route("/login")
     .post(userLogin);
 
-//testing only
-// router
-//     .route("/:id")
-//     .get(just);
-
 //User info update
 router
     .route("/update/:id")
