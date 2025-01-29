@@ -14,7 +14,7 @@ router
 
 //Create a Hall
 router
-    .route("/createcourt")
+    .route("/create-court")
     .post(createHall);
 
 //Update a Hall

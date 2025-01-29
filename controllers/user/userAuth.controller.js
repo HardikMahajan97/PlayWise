@@ -28,13 +28,15 @@ export const userSignup = async (req, res) => {
             const registeredUser = await User.register(newUser, password);
             console.log("Registered User:", registeredUser);
             userCount++;
-            req.login(registeredUser, (err) => {
+            req.login(registeredUser, async (err) => {
                 if(err){
                     console.error("Login error:", err);
                     return res.status(500).json({success: false, message: "Error during login", error: err.message});
                 }
 
-                return res.status(200).json({success: true, data: registeredUser});
+                const user = await User.findOne({username:username});
+                const id = user._id;
+                return res.status(200).json({success: true, data: {registeredUser, id}});
             });
         }
         catch(e) {
@@ -43,14 +45,17 @@ export const userSignup = async (req, res) => {
         }
 };
 
-export const userLogin = (req, res, next) => {
+async function getUser(username){
+    return await User.findOne({username:username});
+}
+export const userLogin = async (req, res, next) => {
     const {username, password} = req.body;
 
     if(!username || !password){
         return res.status(404).json({success:false, message:"Enter all the fields"});
     }
 
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", async (err, user, info) => {
 
         if (err) {
             // Handle error if there is any during authentication
@@ -63,7 +68,7 @@ export const userLogin = (req, res, next) => {
         }
 
         // If authentication is successful, log the user in and send the success response
-        req.login(user, (err) => {
+        req.login(user, async (err) => {
             if (err) {
                 // Handle error during session login
                 return res.status(500).json({ success: false, message: "Could not establish session" });
@@ -71,7 +76,9 @@ export const userLogin = (req, res, next) => {
 
             // Authentication successful
             //redirect the home page or the required page here.
-            return res.status(200).json({ success: true, message: "Login Success" });
+            const user = await getUser(username);
+            const id = user._id;
+            return res.status(200).json({id});
         });
     })(req, res, next);
 };
@@ -109,11 +116,9 @@ export const renderValidationForm = async (req, res) => {
 export const validateAndGenerateOtp = async(req, res) => {
     try {
 
-        const {id} = req.params;
-        const user = await User.findById(id);
         const {contact} = req.body;
         const checkPhone = await User.findOne({contact:contact});
-        if(!user || !checkPhone){
+        if(!checkPhone){
             return res.status(404).json({
                 success:false,
                 message:"user not found"
@@ -122,14 +127,14 @@ export const validateAndGenerateOtp = async(req, res) => {
 
         //Generating a 6 digit otp
         const Otp = crypto.randomInt(100000, 999999).toString(); //6 Digit Otp
-        const expiry = new Date(Date.now() + 5 * 60 * 1000); //5 minutes expiry
+        const expiry = new Date(Date.now() + 3 * 60 * 1000); //5 minutes expiry
 
         const otpRecord = new otpModel({contact, Otp, expiry});
         await otpRecord.save();
 
         //Send the Otp through twilio client
         const message = await client.messages.create({
-            body: `Your OTP is ${Otp}. It is valid for 5 minutes.`,
+            body: `Your OTP is ${Otp}. It is valid for 3 minutes.`,
             to: contact,     // Recipient's phone number
             from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio number
         });
@@ -137,7 +142,7 @@ export const validateAndGenerateOtp = async(req, res) => {
 
 
         //Render the otp form to submit the otp, instead of this;
-        return res.status(200).json({success: true, message:`Your otp is sent successfully, OTP: ${message.sid} OR ${Otp}.`});
+        return res.status(200).json({success: true, message:`Your otp is sent successfully.`});
     }
     catch (error) {
         // console.error("Error sending OTP:", error);
@@ -145,18 +150,7 @@ export const validateAndGenerateOtp = async(req, res) => {
     }
 };
 
-
-//GET method to render the otp method.
-export const renderOtpForm = async(req, res) => {
-    try{
-        res.redirect("OtpForm");
-    }
-    catch(e){
-        res.json({message: `${e.message}`});
-    }
-};
-
-export const verifyOtpAndSendPasswordOnContact = async (req, res) => {
+export const verifyOtp = async (req, res) => {
     try{
         const {Otp} = req.body;
         const otpRecord = await otpModel.findOne({
@@ -182,4 +176,50 @@ export const verifyOtpAndSendPasswordOnContact = async (req, res) => {
         return res.json({message:`${e.message}`});
     }
 };
+
+export const changePassword = async (req, res, next) => {
+    const {username, newPassword, confirmPassword} = req.body;
+
+    try{
+        console.log('Reached Change Password')
+        const user = await User.findOne({username: username});
+
+        if(!user){
+            return res.status(404).json({message:`User not found`});
+        }
+
+        if(newPassword !== confirmPassword){
+            return res.status(400).json({message:`Bad Request, Enter the correct password in both fields, and try again!`});
+        }
+
+        await user.setPassword(newPassword);
+
+        await user.save();
+
+        req.login(user, async (err) => {
+            if (err) {
+                // Handle error during session login
+                return res.status(500).json({ success: false, message: "Could not establish session" });
+            }
+
+            //Authentication successful
+            //redirect the home page or the required page here.
+            const user = await getUser(username);
+            const userID = user._id;
+            return res.status(200).json({
+                success: true,
+                message: "Password reset successful. You are now logged in.",
+                user: {
+                    id: user._id,
+                    username: user.username,
+                },
+            });
+        });
+
+    }catch(e){
+        console.error(e.message);
+    }
+}
+
+
 

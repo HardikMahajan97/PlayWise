@@ -60,6 +60,7 @@ const hallSchema = new Schema({
         ref: "VendorInfo", // Name of the related model
         required: true,
     },
+
 });
 
 const BadmintonHall = mongoose.model("BadmintonHall", hallSchema);

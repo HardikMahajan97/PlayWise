@@ -28,7 +28,7 @@
         -> Privacy Policy and Terms and Conditions of Use.
 
 ***When user clicks on a venue.***
-2. Details Section:
+1. Details Section:
     a. Name of the hall.
     b. Image(s) of the Venue. 
     c. Details:
@@ -40,12 +40,12 @@
     g. Pricing starting.
     h. Exact location on maps.
     i. Book your court.
-3. Review Section:
+2. Review Section:
     a. User reviews.
     b. Leave a rating section.
 
 ***When user wants to select the date:***
-4. i. Dropdown of the calender.
+4. i. Dropdown of the calendar.
    ii. Choose the date.
    iii. Close button / search button for the selected date.
 

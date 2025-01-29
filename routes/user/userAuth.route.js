@@ -5,8 +5,9 @@ import {
     userSignup,
     userLogin,
     updateUserInfo,
-    renderValidationForm, validateAndGenerateOtp,
-    renderOtpForm, verifyOtpAndSendPasswordOnContact
+    validateAndGenerateOtp,
+    verifyOtp,
+    changePassword
 } from "../../controllers/user/userAuth.controller.js";
 
 router
@@ -23,13 +24,14 @@ router
     .post(updateUserInfo)
 
 router
-    .route("/forgotPassword/:id")
-    .get(renderValidationForm)
+    .route("/forgotPassword")
     .post(validateAndGenerateOtp)
-    // .post(forgotPasswordRouteForUser)
+
 router
     .route("/verify")
-    .get(renderOtpForm)
-    .post(verifyOtpAndSendPasswordOnContact)
+    .post(verifyOtp)
+router
+    .route("/changePassword")
+    .post(changePassword);
 
 export default router;

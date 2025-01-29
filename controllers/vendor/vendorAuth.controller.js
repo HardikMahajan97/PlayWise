@@ -51,14 +51,19 @@ export const signup = async (req, res) => {
     }
 };
 
-export const login = (req, res, next) => {
+
+async function getVendor(username){
+    return await VendorInfo.findOne({username: username});
+}
+
+export const login = async (req, res, next) => {
     const {username, password} = req.body;
 
     if(!username || !password){
         return res.status(404).json({success:false, message:"Enter all the fields"});
     }
 
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", async (err, user, info) => {
         if (err) {
             // Handle error if there is any during authentication
             return res.status(500).json({ success: false, message: "Internal server error" });
@@ -70,15 +75,17 @@ export const login = (req, res, next) => {
         }
 
         // If authentication is successful, log the user in and send the success response
-        req.login(user, (err) => {
+        req.login(user, async (err) => {
             if (err) {
                 // Handle error during session login
                 return res.status(500).json({ success: false, message: "Could not establish session" });
             }
 
-            // Authentication successful
+            //Authentication successful
             //redirect the home page or the required page here.
-            return res.status(200).json({ success: true, message: "Login Success" });
+            const vendor = await getVendor(username);
+            const vendorID = vendor._id;
+            return res.status(200).json({vendorID});
         });
     })(req, res, next);
 };
@@ -105,15 +112,12 @@ export const updateVendorInfo = async(req, res) => {
 };
 
 
-
 export const validateAndGenerateOtp = async(req, res) => {
     try {
 
-        const {id} = req.params;
-        const user = await VendorInfo.findById(id);
         const {contact} = req.body;
         const checkPhone = await VendorInfo.findOne({contact:contact});
-        if(!user || !checkPhone){
+        if(!checkPhone){
             return res.status(404).json({
                 success:false,
                 message:"user not found"
@@ -122,14 +126,14 @@ export const validateAndGenerateOtp = async(req, res) => {
 
         //Generating a 6 digit otp
         const Otp = crypto.randomInt(100000, 999999).toString(); //6 Digit Otp
-        const expiry = new Date(Date.now() + 5 * 60 * 1000); //5 minutes expiry
+        const expiry = new Date(Date.now() + 3 * 60 * 1000); //5 minutes expiry
 
         const otpRecord = new otpModel({contact, Otp, expiry});
         await otpRecord.save();
 
         //Send the Otp through twilio client
         const message = await client.messages.create({
-            body: `Your OTP is ${Otp}. It is valid for 5 minutes.`,
+            body: `Your OTP is ${Otp}. It is valid for 3 minutes.`,
             to: contact,     // Recipient's phone number
             from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio number
         });
@@ -146,22 +150,28 @@ export const validateAndGenerateOtp = async(req, res) => {
 };
 
 
-export const renderOtpForm = async(req, res) => {
+export const verifyOtp = async (req, res) => {
     try{
-        res.redirect("OtpForm");
-    }
-    catch(e){
-        res.json({message: `${e.message}`});
-    }
-};
+        // const {Otp} = req.body;
+        // const otpRecord = await otpModel.findOne({
+        //     Otp: Otp,
+        //     isUsed: false
+        // });
+        //
+        // console.log("Found Otp record : " + otpRecord);
+        const { Otp } = req.body;
+        console.log("Received OTP from request:", Otp); // See what we're getting from request
 
-export const verifyOtpAndSendPasswordOnContact = async (req, res) => {
-    try{
-        const {Otp} = req.body;
+// Check what exists in database first
+        const allOtps = await otpModel.find({});
+        console.log("All OTP records:", allOtps); // See all OTP records
+
+// Now try your original query with logging
         const otpRecord = await otpModel.findOne({
             Otp: Otp,
             isUsed: false
         });
+        console.log("Found OTP record:", otpRecord);
 
         if (!otpRecord) {
             throw new Error('Invalid or expired OTP');
@@ -178,6 +188,53 @@ export const verifyOtpAndSendPasswordOnContact = async (req, res) => {
 
         return res.status(200).json({success:true, data:otpRecord});
     }catch(e){
-        return res.json({message:`${e.message}`});
+        return res.status(500).json({success:false, message:`${e.message}`});
     }
 };
+
+
+export const changePassword = async (req, res, next) => {
+    const {username, newPassword, confirmPassword} = req.body;
+
+    try{
+        console.log('Reached Change Password')
+        const vendor = await VendorInfo.findOne({username: username});
+
+        if(!vendor){
+            return res.status(404).json({message:`Vendor not found`});
+        }
+
+        if(newPassword !== confirmPassword){
+            return res.status(400).json({message:`Bad Request, Enter the correct password in both fields, and try again!`});
+        }
+
+        await vendor.setPassword(newPassword);
+
+        await vendor.save();
+
+        req.login(vendor, async (err) => {
+            if (err) {
+                // Handle error during session login
+                return res.status(500).json({ success: false, message: "Could not establish session" });
+            }
+
+            //Authentication successful
+            //redirect the home page or the required page here.
+
+                return res.status(200).json({
+                    success: true,
+                    message: "Password reset successful. You are now logged in.",
+                    vendor: {
+                        id: vendor._id,
+                        username: vendor.username,
+                    },
+                });
+            });
+
+    }catch(e){
+        console.error(e.message);
+    }
+}
+
+
+

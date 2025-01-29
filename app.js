@@ -115,13 +115,13 @@ app.get("/home", (req, res) => {
 app.use("/vendor", vendorroutes);
 
 //Hall Dashboard for the vendor and it's features.(CRUD)
-app.use("/vendor-home/:id", hallroutes); 
+app.use("/home-vendor/:id", hallroutes);
 
 //User authentication routes & updating
 app.use("/user", userroutes);
 
 //User logs in and This is what he sees. The Badminton halls available near his home,
-app.use("/listings", listingroute);
+app.use("/listings/:id", listingroute);
 
 
 app.get("/get-all-vendors", async (req, res) => {

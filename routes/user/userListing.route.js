@@ -1,14 +1,21 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
-import {showAllListingsToTheUser, getOneParticularListing} from "../../controllers/user/userListing.controller.js";
+import {showAllListingsToTheUser,
+    getOneParticularListing,
+    bookThisListing
+} from "../../controllers/user/userListing.controller.js";
 
 router
     .route("/")
     .get(showAllListingsToTheUser);
 
 router
-    .route("/:id")
+    .route("/:hallId")
     .get(getOneParticularListing);
+
+router
+    .route("/book/:hallId")
+    .post(bookThisListing);
 
 
 export default router;

@@ -6,7 +6,8 @@ import {
     login,
     updateVendorInfo,
     validateAndGenerateOtp,
-    verifyOtpAndSendPasswordOnContact, deleteVendor
+    verifyOtp, deleteVendor,
+    changePassword
 } from "../../controllers/vendor/vendorAuth.controller.js";
 
 router
@@ -18,11 +19,11 @@ router
     .post(login);
 
 router
-    .get("/forgotPassword/:id", validateAndGenerateOtp);
+    .post("/forgotPassword", validateAndGenerateOtp);
 
 router
     .route("/verify")
-    .post(verifyOtpAndSendPasswordOnContact)
+    .post(verifyOtp)
 
 router
     .route("/update-vendor-info/:id")
@@ -32,4 +33,7 @@ router
     .route("/delete/:id")
     .delete(deleteVendor)
 
+router
+    .route("/changePassword")
+    .post(changePassword);
 export default router;
