@@ -152,19 +152,10 @@ export const validateAndGenerateOtp = async(req, res) => {
 
 export const verifyOtp = async (req, res) => {
     try{
-        // const {Otp} = req.body;
-        // const otpRecord = await otpModel.findOne({
-        //     Otp: Otp,
-        //     isUsed: false
-        // });
-        //
-        // console.log("Found Otp record : " + otpRecord);
-        const { Otp } = req.body;
-        console.log("Received OTP from request:", Otp); // See what we're getting from request
 
-// Check what exists in database first
-        const allOtps = await otpModel.find({});
-        console.log("All OTP records:", allOtps); // See all OTP records
+        const { Otp } = req.body;
+        console.log("Received OTP from request:", Otp);
+
 
 // Now try your original query with logging
         const otpRecord = await otpModel.findOne({
@@ -219,8 +210,6 @@ export const changePassword = async (req, res, next) => {
             }
 
             //Authentication successful
-            //redirect the home page or the required page here.
-
                 return res.status(200).json({
                     success: true,
                     message: "Password reset successful. You are now logged in.",
@@ -235,6 +224,3 @@ export const changePassword = async (req, res, next) => {
         console.error(e.message);
     }
 }
-
-
-

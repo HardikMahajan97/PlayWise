@@ -23,8 +23,30 @@ const bookingSchema = new Schema({
     },
     slot: {
         type:Date,
+        required:true,
+    },
+    isSlotBooked: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+    isCourtBooked:{
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+    courtNumber:{
+        type:String,
+        required:true,
+    },
+    date:{
+        type:Date,
+        required:true,
+        default:() => Date.now(),
     }
 });
+
+bookingSchema.index({expiryForBooking:1}, {expireAfterSeconds: 3600});
 
 const Booking = mongoose.model('Booking', bookingSchema);
 export default Booking;

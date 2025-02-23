@@ -11,9 +11,9 @@ import LocalStrategy from "passport-local";
 import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
 import cors from 'cors';
+import{Resend} from "resend";
 //************************File imports****************** */
 import VendorInfo from './models/vendor/vendorAuth.model.js';
-import Dbotp from './models/Otp.Model.js';
 import BadmintonHall from './models/vendor/halls.js';
 import User from "./models/user/userAuth.model.js"
 import hallroutes from "./routes/vendor/hall.route.js";
@@ -144,3 +144,22 @@ app.get("/get-vendors/:id", async (req, res) => {
         return res.status(500).json({message: e.message});
     }
 });
+
+app.get("/get-all-users", async(req, res) => {
+    try{
+        const users = await User.find({});
+        return res.status(200).json({users: users});
+    }catch(e){
+        return res.status(500).json({message: e.message});
+    }
+});
+
+// app.get("/simple-email", (req, res) => {
+//     const resend = new Resend('re_4jXu5W6L_GL3EMbLXy34xN7Ex9nhenKNG');
+//     resend.emails.send({
+//         from: 'onboarding@resend.dev',
+//         to: 'hardikmahajan97@gmail.com',
+//         subject: 'Hello World',
+//         html: '<p>Congrats on sending your <strong>first email Through Resend</strong>!</p>'
+//     });
+// })

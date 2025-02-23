@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
-import {showAllListingsToTheUser,
+import {
+    showAllListingsToTheUser,
     getOneParticularListing,
     bookThisListing
 } from "../../controllers/user/userListing.controller.js";
@@ -16,6 +17,7 @@ router
 router
     .route("/book/:hallId")
     .post(bookThisListing);
+
 
 
 export default router;

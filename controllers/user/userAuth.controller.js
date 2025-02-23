@@ -106,16 +106,10 @@ export const updateUserInfo = async(req, res) => {
 };
 
 
-//Get method to render the validation form which prompts the user to send the valid contact number.
-export const renderValidationForm = async (req, res) => {
-    res.redirect("validationFormLink");
-}
-
 //Post method which checks if the phone number and the user exists, and then generated the otp while rendering,
 //the otp page which prompts the user to submit the otp sent on the provided contact number.
 export const validateAndGenerateOtp = async(req, res) => {
     try {
-
         const {contact} = req.body;
         const checkPhone = await User.findOne({contact:contact});
         if(!checkPhone){
@@ -125,16 +119,15 @@ export const validateAndGenerateOtp = async(req, res) => {
             });
         }
 
-        //Generating a 6 digit otp
         const Otp = crypto.randomInt(100000, 999999).toString(); //6 Digit Otp
-        const expiry = new Date(Date.now() + 3 * 60 * 1000); //5 minutes expiry
+        const expiry = new Date(Date.now() + 5 * 60 * 1000); //5 minutes expiry
 
         const otpRecord = new otpModel({contact, Otp, expiry});
         await otpRecord.save();
 
         //Send the Otp through twilio client
         const message = await client.messages.create({
-            body: `Your OTP is ${Otp}. It is valid for 3 minutes.`,
+            body: `Your OTP is ${Otp}. It is valid for 5 minutes.`,
             to: contact,     // Recipient's phone number
             from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio number
         });
@@ -185,7 +178,7 @@ export const changePassword = async (req, res, next) => {
         const user = await User.findOne({username: username});
 
         if(!user){
-            return res.status(404).json({message:`User not found`});
+            return res.status(404).json({message:`Internal Server Error`});
         }
 
         if(newPassword !== confirmPassword){
