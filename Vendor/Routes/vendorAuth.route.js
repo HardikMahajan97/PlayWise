@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
-import VendorInfo from '../../models/vendor/vendorAuth.model.js';
+import VendorInfo from '../Models/vendorAuth.model.js';
 import {
     signup,
     login,
@@ -8,14 +8,18 @@ import {
     validateAndGenerateOtp,
     verifyOtp, deleteVendor,
     changePassword
-} from "../../controllers/vendor/vendorAuth.controller.js";
+} from "../Controllers/vendorAuth.controller.js";
+import passport from "passport";
 
 router
     .route("/signup")
     .post(signup);
 
 router
-    .route("/login")
+    .route("/login", passport.authenticate('vendor-local', {
+        failureRedirect: login,
+        failureMessage: true
+    }))
     .post(login);
 
 router

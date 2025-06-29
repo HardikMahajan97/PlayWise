@@ -1,6 +1,6 @@
-## User ineraction starts.
+## User interaction starts.
 1. User enters
-2. Login page or singup page for the Consumer.
+2. Login page or signup page for the Consumer.
     i. Signup page:
         a. Name, email, username, contact, age, password
     ii. Login page

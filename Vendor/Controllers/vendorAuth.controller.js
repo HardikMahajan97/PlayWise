@@ -1,25 +1,17 @@
 import express from 'express';
-const app = express();
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import passport from "passport";
-import passportLocalMongoose from "passport-local-mongoose";
-import session from "express-session";
-import mongoStore from "connect-mongo";
-import LocalStrategy from "passport-local";
-import twilio from "twilio";
-import {v4 as uuidv4} from "uuid";
 
 //************************File imports****************** */
-import VendorInfo from '../../models/vendor/vendorAuth.model.js';
-import Dbotp from '../../models/Otp.Model.js';
-import BadmintonHall from '../../models/vendor/halls.js';
+import VendorInfo from '../Models/vendorAuth.model.js';
+import otpModel from '../../models/Otp.Model.js';
 
 //**************Twilio configuration****************** */
 import client from "../../utils/twilioclient.js";
-import User from "../../models/user/userAuth.model.js";
 import crypto from "crypto";
-import otpModel from "../../models/Otp.Model.js";
+
+const app = express();
+
 dotenv.config();
 //**************************************************** */
 
@@ -50,8 +42,6 @@ export const signup = async (req, res) => {
         return res.status(500).json({success: false, message: "Internal Server Error", error: e.message});
     }
 };
-
-
 async function getVendor(username){
     return await VendorInfo.findOne({username: username});
 }
@@ -63,17 +53,19 @@ export const login = async (req, res, next) => {
         return res.status(404).json({success:false, message:"Enter all the fields"});
     }
 
-    passport.authenticate("local", async (err, user, info) => {
+    passport.authenticate("vendor-local", async (err, user, info) => {
         if (err) {
             // Handle error if there is any during authentication
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
 
         if (!user) {
-            // Handle invalid login (wrong credentials or user not found)
-            return res.status(401).json({ success: false, message: "Invalid email or password" });
+            console.log("Authentication failed:", info);
+            return res.status(401).json({
+                success: false,
+                message: info?.message || "Invalid credentials"
+            });
         }
-
         // If authentication is successful, log the user in and send the success response
         req.login(user, async (err) => {
             if (err) {
@@ -99,18 +91,21 @@ export const deleteVendor = async(req, res) => {
         return res.status(500).send("InternalServerError." + e.message);
     }
 }
+
 export const updateVendorInfo = async(req, res) => {
     try{
         const {id}= req.params;
 
+        const user = await VendorInfo.findById(id);
+        if(!user) return res.status(404).json({success:false, message:"User not found"});
+
         const updatedVendorInfo = await VendorInfo.findByIdAndUpdate(id, {...req.body}, { writeConcern: { w: 'majority' } });
-        res.json(updatedVendorInfo);
+        return res.json({updatedVendorInfo});
     }
     catch(e){
-        res.json({message: e.message});
+        return res.json({message: e.message});
     }
 };
-
 
 export const validateAndGenerateOtp = async(req, res) => {
     try {
@@ -149,15 +144,12 @@ export const validateAndGenerateOtp = async(req, res) => {
     }
 };
 
-
 export const verifyOtp = async (req, res) => {
     try{
 
         const { Otp } = req.body;
         console.log("Received OTP from request:", Otp);
 
-
-// Now try your original query with logging
         const otpRecord = await otpModel.findOne({
             Otp: Otp,
             isUsed: false
@@ -182,7 +174,6 @@ export const verifyOtp = async (req, res) => {
         return res.status(500).json({success:false, message:`${e.message}`});
     }
 };
-
 
 export const changePassword = async (req, res, next) => {
     const {username, newPassword, confirmPassword} = req.body;

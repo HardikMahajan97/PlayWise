@@ -3,8 +3,7 @@ const router = express.Router({ mergeParams: true });
 import {
     showAllListingsToTheUser,
     getOneParticularListing,
-    bookThisListing
-} from "../../controllers/user/userListing.controller.js";
+} from "../Controllers/userListing.controller.js";
 
 router
     .route("/")
@@ -13,11 +12,5 @@ router
 router
     .route("/:hallId")
     .get(getOneParticularListing);
-
-router
-    .route("/book/:hallId")
-    .post(bookThisListing);
-
-
 
 export default router;

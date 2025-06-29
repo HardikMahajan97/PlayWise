@@ -8,14 +8,19 @@ import {
     validateAndGenerateOtp,
     verifyOtp,
     changePassword
-} from "../../controllers/user/userAuth.controller.js";
+} from "../Controllers/userAuth.controller.js";
+import passport from "passport";
+import {login} from "../../Vendor/Controllers/vendorAuth.controller.js";
 
 router
     .route("/signup")
     .post(userSignup);
 
 router
-    .route("/login")
+    .route("/login", passport.authenticate('user-local', {
+        failureRedirect: userLogin,
+        failureMessage: true
+    }))
     .post(userLogin);
 
 //User info update

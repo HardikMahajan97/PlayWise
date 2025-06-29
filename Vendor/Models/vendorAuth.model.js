@@ -37,6 +37,10 @@ const vendorSchema = new Schema(
 });
 
 //Adds the username and password fields automatically, and plugins the passportLocalMongoose library.
-vendorSchema.plugin(passportLocalMongoose);
+vendorSchema.plugin(passportLocalMongoose, {
+    usernameField : 'username',
+    hashField:'hash',
+    saltField:'salt'
+});
 const VendorInfo = mongoose.model('VendorInfo', vendorSchema);
 export default VendorInfo;

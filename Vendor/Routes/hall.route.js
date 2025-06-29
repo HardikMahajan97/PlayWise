@@ -1,7 +1,7 @@
 import express from 'express';
 
 const router = express.Router({mergeParams: true});
-import {showAllHalls, showHall, createHall, updateHall, deleteHall} from "../../controllers/vendor/hall.controller.js";
+import {showAllHalls, showHall, createHall, updateHall, deleteHall} from "../Controllers/hall.controller.js";
 //All the halls
 router
     .route("/")

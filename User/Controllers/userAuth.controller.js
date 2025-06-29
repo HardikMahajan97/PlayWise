@@ -1,18 +1,12 @@
 import express from 'express';
-const app = express();
-import mongoose from "mongoose";
-import dotenv from "dotenv";
 import passport from "passport";
-import passportLocalMongoose from "passport-local-mongoose";
-import session from "express-session";
-import mongoStore from "connect-mongo";
-import LocalStrategy from "passport-local";
-import twilio from "twilio";
 import crypto from 'crypto';
 
-import User from "../../models/user/userAuth.model.js";
+import User from "../Models/userAuth.model.js";
 import otpModel from "../../models/Otp.Model.js";
 import client from "../../utils/twilioclient.js";
+
+const app = express();
 
 let userCount = 0;
 export const userSignup = async (req, res) => {
@@ -45,9 +39,6 @@ export const userSignup = async (req, res) => {
         }
 };
 
-async function getUser(username){
-    return await User.findOne({username:username});
-}
 export const userLogin = async (req, res, next) => {
     const {username, password} = req.body;
 
@@ -55,7 +46,7 @@ export const userLogin = async (req, res, next) => {
         return res.status(404).json({success:false, message:"Enter all the fields"});
     }
 
-    passport.authenticate("local", async (err, user, info) => {
+    passport.authenticate("user-local", async (err, user, info) => {
 
         if (err) {
             // Handle error if there is any during authentication
@@ -63,8 +54,11 @@ export const userLogin = async (req, res, next) => {
         }
 
         if (!user) {
-            // Handle invalid login (wrong credentials or user not found)
-            return res.status(401).json({ success: false, message: "Invalid username or password" });
+            console.log("Authentication failed:", info);
+            return res.status(401).json({
+                success: false,
+                message: info?.message || "Invalid credentials"
+            });
         }
 
         // If authentication is successful, log the user in and send the success response
@@ -76,7 +70,7 @@ export const userLogin = async (req, res, next) => {
 
             // Authentication successful
             //redirect the home page or the required page here.
-            const user = await getUser(username);
+            const user = await User.findOne({username:username});
             const id = user._id;
             return res.status(200).json({id});
         });
@@ -197,7 +191,7 @@ export const changePassword = async (req, res, next) => {
 
             //Authentication successful
             //redirect the home page or the required page here.
-            const user = await getUser(username);
+            const user = await User.findOne({username:username});
             const userID = user._id;
             return res.status(200).json({
                 success: true,
@@ -213,6 +207,3 @@ export const changePassword = async (req, res, next) => {
         console.error(e.message);
     }
 }
-
-
-

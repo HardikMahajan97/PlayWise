@@ -13,17 +13,14 @@ import {v4 as uuidv4} from "uuid";
 import cors from 'cors';
 import{Resend} from "resend";
 //************************File imports****************** */
-import VendorInfo from './models/vendor/vendorAuth.model.js';
-import BadmintonHall from './models/vendor/halls.js';
-import User from "./models/user/userAuth.model.js"
-import hallroutes from "./routes/vendor/hall.route.js";
-import vendorroutes from "./routes/vendor/vendorAuth.route.js";
-import userroutes from "./routes/user/userAuth.route.js";
-import listingroute from "./routes/user/userListing.route.js";
+import VendorInfo from './Vendor/Models/vendorAuth.model.js';
+import BadmintonHall from './Vendor/Models/halls.js';
+import User from "./User/Models/userAuth.model.js"
+import hallRoutes from "./Vendor/Routes/hall.route.js";
+import vendorRoutes from "./Vendor/Routes/vendorAuth.route.js";
+import userRoutes from "./User/Routes/userAuth.route.js";
+import listingRoutes from "./User/Routes/userListing.route.js";
 dotenv.config();
-// const dbUrl = "mongodb+srv://hardikmahajan97:tzut2fvAqLl8mfPe@playwisecluster.zfjnl.mongodb.net/PlayWise?retryWrites=true&w=majority&appName=PlayWiseCluster";
-// const dbUrl = 'mongodb://localhost:27017';
-
 
 //************Database Connections on ATLAS************* */
 const dbUrl = process.env.MONGO_URI;
@@ -77,24 +74,64 @@ app.use(
 
 
 //***************Passport Initialization****************
+// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(VendorInfo.authenticate()));
-// passport.use(VendorInfo.createStrategy());
-passport.serializeUser(VendorInfo.serializeUser());
-passport.deserializeUser(VendorInfo.deserializeUser());
+
+// Strategy for User authentication
+passport.use("user-local", new LocalStrategy(
+    {
+        usernameField: 'username',
+        passwordField: 'password'
+    },
+    User.authenticate() // This comes from passport-local-mongoose
+));
+
+// Strategy for Vendor authentication
+passport.use("vendor-local", new LocalStrategy(
+    {
+        usernameField: 'username',
+        passwordField: 'password'
+    },
+    VendorInfo.authenticate() // This comes from passport-local-mongoose
+));
+
+// Serialize user for session
+passport.serializeUser((entity, done) => {
+    console.log("Serializing:", entity.constructor.modelName, entity.id);
+    done(null, {
+        id: entity.id,
+        type: entity.constructor.modelName
+    });
+});
+
+// Deserialize user from session
+passport.deserializeUser(async (obj, done) => {
+    try {
+        console.log("Deserializing:", obj.type, obj.id);
+
+        let Model;
+        if (obj.type === "User") {
+            Model = User;
+        } else if (obj.type === "VendorInfo") {
+            Model = VendorInfo;
+        } else {
+            return done(new Error('Invalid user type: ' + obj.type));
+        }
+
+        const user = await Model.findById(obj.id);
+        if (!user) {
+            return done(new Error('User not found'));
+        }
+
+        done(null, user);
+    } catch (err) {
+        console.error("Deserialization error:", err);
+        done(err);
+    }
+});
 
 //**************************************************** */
-
-//**************Twilio configuration****************** */
-// const acc_sid = process.env.TWILIO_AC_SID;
-// const acc_auth_token = process.env.TWILIO_AC_AUTH_TOKEN;
-// const client = twilio(acc_sid, acc_auth_token);
-import client from "./utils/twilioclient.js";
-
-//**************************************************** */
-
-
 //********************************************Routers************************************************* */
 
 app.listen(port, (req,res) => {
@@ -112,17 +149,20 @@ app.get("/home", (req, res) => {
 });
 
 //Vendor authentication routes, login and signup.
-app.use("/vendor", vendorroutes);
+app.use("/vendor", vendorRoutes);
 
 //Hall Dashboard for the vendor and it's features.(CRUD)
-app.use("/home-vendor/:id", hallroutes);
+app.use("/home-vendor/:id", hallRoutes);
 
 //User authentication routes & updating
-app.use("/user", userroutes);
+app.use("/user", userRoutes);
 
 //User logs in and This is what he sees. The Badminton halls available near his home,
-app.use("/listings/:id", listingroute);
+app.use("/listings/:id", listingRoutes);
 
+//Booking related routes
+
+/********************************* Test Routes **************************/
 
 app.get("/get-all-vendors", async (req, res) => {
     try{
@@ -153,13 +193,3 @@ app.get("/get-all-users", async(req, res) => {
         return res.status(500).json({message: e.message});
     }
 });
-
-// app.get("/simple-email", (req, res) => {
-//     const resend = new Resend('re_4jXu5W6L_GL3EMbLXy34xN7Ex9nhenKNG');
-//     resend.emails.send({
-//         from: 'onboarding@resend.dev',
-//         to: 'hardikmahajan97@gmail.com',
-//         subject: 'Hello World',
-//         html: '<p>Congrats on sending your <strong>first email Through Resend</strong>!</p>'
-//     });
-// })
