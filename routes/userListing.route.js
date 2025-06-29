@@ -3,7 +3,7 @@ const router = express.Router({ mergeParams: true });
 import {
     showAllListingsToTheUser,
     getOneParticularListing,
-} from "../Controllers/userListing.controller.js";
+} from "../controllers/userListing.controller.js";
 
 router
     .route("/")

@@ -1,12 +1,6 @@
 import express from 'express';
-import mongoose from "mongoose";
 import dotenv from "dotenv";
-import User from "../Models/userAuth.model.js";
-import BadmintonHall from '../../Vendor/Models/halls.js';
-import Booking from "../../models/bookings.models.js";
-import VendorInfo from "../../Vendor/Models/vendorAuth.model.js";
-import moment from "moment";
-
+import BadmintonHall from '../models/BadmintonHall.model.js';
 const app = express();
 dotenv.config();
 
@@ -78,16 +72,15 @@ export const showAllListingsToTheUser = async (req, res) => {
 
 export const getOneParticularListing = async(req, res) => {
     try{
-        const {id, hallId}= req.params;
+        const {userId, hallId}= req.params;
         console.log("Reached the function");
         const listing = await BadmintonHall.findById(hallId)
             .populate({path:'vendorId', select:'Name email contact'}) //Instead of giving vendorId, it will give me the
             //information of the vendor. If it is getting difficult to understand ask out on Google.
             .exec(); //Executes
-        // ;
-        console.log("Sending your court!");
+        console.log("Sending your hall!");
 
-        return res.status(200).json({listing, id, hallId});
+        return res.status(200).json({success: true, data: {listing, userId, hallId}});
 
     } catch(e){
         console.log(e.message);

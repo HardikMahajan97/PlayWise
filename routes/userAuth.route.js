@@ -7,10 +7,11 @@ import {
     updateUserInfo,
     validateAndGenerateOtp,
     verifyOtp,
-    changePassword
-} from "../Controllers/userAuth.controller.js";
+    changePassword,
+    deleteAllUsers
+} from "../controllers/userAuth.controller.js";
 import passport from "passport";
-import {login} from "../../Vendor/Controllers/vendorAuth.controller.js";
+import {login} from "../controllers/vendorAuth.controller.js";
 
 router
     .route("/signup")
@@ -25,7 +26,7 @@ router
 
 //User info update
 router
-    .route("/update/:id")
+    .route("/update/:userId")
     .post(updateUserInfo)
 
 router
@@ -39,4 +40,7 @@ router
     .route("/changePassword")
     .post(changePassword);
 
+router
+    .route("/deleteAllUsers")
+    .get(deleteAllUsers);
 export default router;

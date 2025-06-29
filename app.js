@@ -13,13 +13,15 @@ import {v4 as uuidv4} from "uuid";
 import cors from 'cors';
 import{Resend} from "resend";
 //************************File imports****************** */
-import VendorInfo from './Vendor/Models/vendorAuth.model.js';
-import BadmintonHall from './Vendor/Models/halls.js';
-import User from "./User/Models/userAuth.model.js"
-import hallRoutes from "./Vendor/Routes/hall.route.js";
-import vendorRoutes from "./Vendor/Routes/vendorAuth.route.js";
-import userRoutes from "./User/Routes/userAuth.route.js";
-import listingRoutes from "./User/Routes/userListing.route.js";
+import VendorInfo from './models/vendorAuth.model.js';
+import BadmintonHall from './models/BadmintonHall.model.js';
+import User from "./models/userAuth.model.js"
+import hallRoutes from "./routes/hall.route.js";
+import vendorRoutes from "./routes/vendorAuth.route.js";
+import userRoutes from "./routes/userAuth.route.js";
+import listingRoutes from "./routes/userListing.route.js";
+import bookingRoutes from "./routes/Booking.route.js";
+import courtRoutes from "./routes/Court.route.js";
 dotenv.config();
 
 //************Database Connections on ATLAS************* */
@@ -152,16 +154,19 @@ app.get("/home", (req, res) => {
 app.use("/vendor", vendorRoutes);
 
 //Hall Dashboard for the vendor and it's features.(CRUD)
-app.use("/home-vendor/:id", hallRoutes);
+app.use("/home-vendor/:vendorId", hallRoutes);
 
 //User authentication routes & updating
 app.use("/user", userRoutes);
 
 //User logs in and This is what he sees. The Badminton halls available near his home,
-app.use("/listings/:id", listingRoutes);
+app.use("/listings/:userId", listingRoutes);
 
 //Booking related routes
+app.use("/booking/:userId", bookingRoutes); // Routes to be sorted...
 
+//Court & halls related routes
+app.use("/halls/:hallId", courtRoutes); // Routes to be sorted...
 /********************************* Test Routes **************************/
 
 app.get("/get-all-vendors", async (req, res) => {
@@ -171,6 +176,15 @@ app.get("/get-all-vendors", async (req, res) => {
     }
     catch(e){
         return res.status(500).json({message: e.message});
+    }
+});
+
+app.get("/delete-all-listings", async (req, res) => {
+    try {
+        await BadmintonHall.deleteMany({});
+        return res.status(200).json({message: "All listings deleted successfully"});
+    } catch (err) {
+        return res.status(500).json({message: "Error deleting listings", error: err.message});
     }
 });
 

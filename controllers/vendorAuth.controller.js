@@ -3,11 +3,11 @@ import dotenv from "dotenv";
 import passport from "passport";
 
 //************************File imports****************** */
-import VendorInfo from '../Models/vendorAuth.model.js';
-import otpModel from '../../models/Otp.Model.js';
+import VendorInfo from '../models/vendorAuth.model.js';
+import otpModel from '../models/Otp.Model.js';
 
 //**************Twilio configuration****************** */
-import client from "../../utils/twilioclient.js";
+import client from "../utils/twilioclient.js";
 import crypto from "crypto";
 
 const app = express();
@@ -84,8 +84,8 @@ export const login = async (req, res, next) => {
 
 export const deleteVendor = async(req, res) => {
     try{
-        const {id} = req.params;
-        await VendorInfo.findByIdAndDelete(id);
+        const {vendorId} = req.params;
+        await VendorInfo.findByIdAndDelete(vendorId);
         return res.status(200).json({success:true, message:`Vendor Deleted successfully`});
     }catch(e){
         return res.status(500).send("InternalServerError." + e.message);
@@ -94,9 +94,9 @@ export const deleteVendor = async(req, res) => {
 
 export const updateVendorInfo = async(req, res) => {
     try{
-        const {id}= req.params;
+        const {vendorId}= req.params;
 
-        const user = await VendorInfo.findById(id);
+        const user = await VendorInfo.findById(vendorId);
         if(!user) return res.status(404).json({success:false, message:"User not found"});
 
         const updatedVendorInfo = await VendorInfo.findByIdAndUpdate(id, {...req.body}, { writeConcern: { w: 'majority' } });
@@ -215,3 +215,13 @@ export const changePassword = async (req, res, next) => {
         console.error(e.message);
     }
 }
+
+export const deleteAllVendors = async (req, res) => {
+    try {
+        await VendorInfo.deleteMany({});
+        return res.status(200).json({success: true, message: "All vendors deleted successfully."});
+    } catch (error) {
+        console.error("Error deleting all vendors:", error);
+        return res.status(500).json({success: false, message: "Internal Server Error", error: error.message});
+    }
+};

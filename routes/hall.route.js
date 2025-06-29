@@ -1,7 +1,7 @@
 import express from 'express';
 
 const router = express.Router({mergeParams: true});
-import {showAllHalls, showHall, createHall, updateHall, deleteHall} from "../Controllers/hall.controller.js";
+import {showAllHalls, showHall, createHall, updateHall, deleteHall} from "../controllers/hall.controller.js";
 //All the halls
 router
     .route("/")
@@ -9,22 +9,22 @@ router
 
 //Get one Hall
 router
-    .route("/:id")
+    .route("/:hallId")
     .get(showHall);
 
 //Create a Hall
 router
-    .route("/create-court")
+    .route("/create-hall")
     .post(createHall);
 
 //Update a Hall
 router
-    .route("/hall/update/:id")
+    .route("/hall/update/:hallId")
     .put(updateHall);
 
 //Delete a Hall
 router
-    .route("/deletelisting/:id")
+    .route("/delete-hall/:hallId")
     .delete(deleteHall);
 
 export default router;
