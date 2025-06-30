@@ -2,6 +2,9 @@ import Booking from '../models/Booking.model.js';
 import CourtAvailability from "../models/CourtAvailability.model.js";
 import Court from "../models/Court.model.js";
 import BadmintonHall from "../models/BadmintonHall.model.js";
+import generateUserBookingEmail from "../utils/generateUserBookingEmail.js";
+import User from "../models/userAuth.model.js";
+import sendEmail from "../utils/SendEmail.js";
 
 export const createBooking = async (req, res) => {
     try {
@@ -27,10 +30,12 @@ export const createBooking = async (req, res) => {
         const existing = await Booking.findOne({ courtId: courtId, date: date, slot: slot });
         if (existing) return res.status(409).json({ error: "Slot already booked." });
 
+        const vendorId = hall.vendorId;
         const booking = new Booking({
             userId: userId,
             hallId: hallId,
             courtId: courtId,
+            vendorId: vendorId,
             date: date,
             slot: slot,
             price: court.pricePerHour,
@@ -38,6 +43,19 @@ export const createBooking = async (req, res) => {
         });
 
         await booking.save();
+
+        const user = await User.findById(userId);
+        const courtDetails = await Court.findById(courtId);
+        const hallDetails = await BadmintonHall.findById(hallId);
+
+        const emailHtml = generateUserBookingEmail(
+            user.name,
+            courtDetails,
+            hallDetails,
+            { date, slot, price: courtDetails.pricePerHour }
+        );
+
+        await sendEmail(user.email, "🎉 Booking Confirmed at " + hallDetails.name, emailHtml);
         return res.status(201).json({ message: "Booking confirmed!", data: booking });
     } catch (err) {
         res.status(500).json({ error: "Internal server error, could not create booking!", message: err.message });
@@ -51,6 +69,7 @@ export const getMyBookings = async (req, res) => {
         const bookings = await Booking.find({ userId: userId })
             .populate('hallId', 'name address')
             .populate('courtId', 'name')
+            .populate('userId', 'name email contact')
             .sort({ date: 1 });
         if(!bookings) return res.status(401).json({ success: false, error: "No bookings found for this user!" });
 

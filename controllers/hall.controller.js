@@ -3,6 +3,9 @@ import express from 'express';
 //************************File imports****************** */
 import VendorInfo from '../models/vendorAuth.model.js';
 import BadmintonHall from '../models/BadmintonHall.model.js';
+import sendEmail from "../utils/SendEmail.js";
+import generateHallEmail from "../utils/generateHallEmail.js";
+
 
 const app = express();
 
@@ -65,19 +68,23 @@ export const createHall = async (req, res) => {
         if (!vendor) {
             return res.status(404).json({ success: false, message: "Vendor not found" });
         }
+        console.log("Name of the hall:", name);
         const newCourt = new BadmintonHall({
-            address, 
-            city, 
-            state,
-            name,
-            image,
-            amenities, 
-            numberOfCourts, 
-            additionalInfo,
-            pincode,
-            vendorId
+            address: address,
+            city: city,
+            state: state,
+            name: name,
+            image: image,
+            amenities: amenities,
+            numberOfCourts: numberOfCourts,
+            additionalInfo: additionalInfo,
+            pincode: pincode,
+            vendorId: vendorId
         });
         const savedHall = await newCourt.save();
+        const emailHtml = generateHallEmail("create", savedHall, vendor.name);
+        await sendEmail(vendor.email, `🎉 Hall Listed: ${savedHall.name}`, emailHtml);
+
         return res.status(200).json({ success: true, data: {savedHall} });
     }
     catch(e){
@@ -93,6 +100,10 @@ export const updateHall = async(req, res) => {
         
         if(!hall) return res.status(404).json({ success:false, message:"Hall not found"});
 
+        const vendor = await VendorInfo.findById(hall.vendorId);
+        const emailHtml = generateHallEmail("update", hall, vendor.name, req.body);
+        await sendEmail(vendor.email, `✏️ Hall Updated: ${hall.name}`, emailHtml);
+
         return res.status(200).json({ success:true, data:hall });
     }
     catch(e){
@@ -103,7 +114,15 @@ export const updateHall = async(req, res) => {
 export const deleteHall = async (req, res) => {
     try{
         const {hallId} = req.params;
+        const hall = await BadmintonHall.findById(hallId);
+        if (!hall) return res.status(404).json({ success: false, message: "Hall not found" });
+
         await BadmintonHall.findByIdAndDelete(hallId);
+
+        const vendor = await VendorInfo.findById(hall.vendorId);
+        const emailHtml = generateHallEmail("delete", hall, vendor.name);
+        await sendEmail(vendor.email, `🗑️ Hall Deleted: ${hall.name}`, emailHtml);
+
         const totalHalls = await BadmintonHall.countDocuments({ vendorId: req.params.vendorId });
         return res.status(200).json({ success:true, message:`Listing Deleted. Total Halls now :${totalHalls}`});
     }

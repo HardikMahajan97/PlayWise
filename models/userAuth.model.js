@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 import passportLocalMongoose from "passport-local-mongoose";
 
 const userSchema = new Schema({
-    Name:{
+    name:{
         type:String,
         required:true,
     },

@@ -17,6 +17,11 @@ const BookingSchema = new Schema({
         ref: 'Court',
         required: true
     },
+    vendorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'VendorInfo',
+        required: true
+    },
     date: {
         type: String,
         required: true // Format: "YYYY-MM-DD"

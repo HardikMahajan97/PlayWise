@@ -10,13 +10,13 @@ const app = express();
 
 let userCount = 0;
 export const userSignup = async (req, res) => {
-        const {Name, email, username, contact, age, password} = req.body;
+        const {name, email, username, contact, age, password} = req.body;
         
-        if(!Name || !email || !username || !contact || !age || !password){
+        if(!name || !email || !username || !contact || !age || !password){
             return res.status(400).json({success: false, message:"User Not listed properly!"});
         }
         try {
-            const newUser = new User({Name, email, username, contact, age});
+            const newUser = new User({name, email, username, contact, age});
             console.log("New User:", newUser);
             
             const registeredUser = await User.register(newUser, password);

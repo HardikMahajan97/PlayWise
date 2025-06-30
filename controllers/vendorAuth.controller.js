@@ -17,13 +17,13 @@ dotenv.config();
 
 
 export const signup = async (req, res) => {
-    const {Name, email, username, contact, age, password, city, location} = req.body;
+    const {name, email, username, contact, age, password, city, location} = req.body;
     
-    if(!Name || !email || !username || !contact || !age || !password || !city || !location){
+    if(!name || !email || !username || !contact || !age || !password || !city || !location){
         return res.status(400).json({success: false, message:"Vendor Not listed properly!"});
     }
     try {
-        const newVendor = new VendorInfo({Name, email, username, contact, age, city, location});
+        const newVendor = new VendorInfo({name, email, username, contact, age, city, location});
         console.log("New Vendor:", newVendor);
         
         const registeredVendor = await VendorInfo.register(newVendor, password);

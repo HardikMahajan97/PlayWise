@@ -1,6 +1,6 @@
 import express from "express";
 
-const router = express.Router({mergedParams: true});
+const router = express.Router({mergeParams: true});
 import {
     createCourt,
     updateCourt,

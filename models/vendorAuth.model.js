@@ -5,7 +5,7 @@ import passportLocalMongoose from "passport-local-mongoose";
 // Vendor Information collection schema
 const vendorSchema = new Schema(
 {
-    Name: {
+    name: {
         type:String,
         required: true,
     },
