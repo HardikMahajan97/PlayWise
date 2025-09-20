@@ -7,17 +7,8 @@ const CourtSchema = new Schema({
         ref: 'BadmintonHall',
         required: true
     },
-    name: {
+    number: {
         type: String,
-        required: true
-    },
-    matType: {
-        type: String,
-        enum: ['Synthetic', 'Wooden', 'Cement'],
-        default: 'Synthetic'
-    },
-    pricePerHour: {
-        type: Number,
         required: true
     },
     createdAt: {

@@ -38,7 +38,7 @@ export const createBooking = async (req, res) => {
             vendorId: vendorId,
             date: date,
             slot: slot,
-            price: court.pricePerHour,
+            price: hall.pricePerHour,
             paymentStatus: "Completed"
         });
 
@@ -52,7 +52,7 @@ export const createBooking = async (req, res) => {
             user.name,
             courtDetails,
             hallDetails,
-            { date, slot, price: courtDetails.pricePerHour }
+            { date, slot, price: hallDetails.pricePerHour }
         );
 
         await sendEmail(user.email, "🎉 Booking Confirmed at " + hallDetails.name, emailHtml);
@@ -68,7 +68,7 @@ export const getMyBookings = async (req, res) => {
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
         const bookings = await Booking.find({ userId: userId })
             .populate('hallId', 'name address')
-            .populate('courtId', 'name')
+            .populate('courtId', 'number')
             .populate('userId', 'name email contact')
             .sort({ date: 1 });
         if(!bookings) return res.status(401).json({ success: false, error: "No bookings found for this user!" });

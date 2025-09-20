@@ -18,7 +18,7 @@ export default function generateUserBookingEmail(userName, court, hall, bookingD
       <!-- Booking Summary -->
       <div style="margin-top: 20px; padding: 15px; background: #111; border-left: 5px solid #FF6B00; border-radius: 6px;">
         <p style="margin: 6px 0;"><strong>🏸 Hall:</strong> ${hall.name}, ${hall.address}</p>
-        <p style="margin: 6px 0;"><strong>🎯 Court:</strong> ${court.name} (${court.matType || 'Standard Mat'})</p>
+        <p style="margin: 6px 0;"><strong>🎯 Court:</strong> ${court.number} (${hall.matType || 'Standard Mat'})</p>
         <p style="margin: 6px 0;"><strong>🗓️ Date:</strong> ${date}</p>
         <p style="margin: 6px 0;"><strong>⏰ Slot:</strong> ${slot}</p>
         <p style="margin: 6px 0;"><strong>💳 Price:</strong> ₹${price}</p>

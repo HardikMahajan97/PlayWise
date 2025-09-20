@@ -31,6 +31,15 @@ const BadmintonHallSchema = new Schema({
         type: Number,
         required: true
     },
+    matType: {
+        type: String,
+        enum: ['Synthetic', 'Wooden', 'Cement'],
+        default: 'Synthetic'
+    },
+    pricePerHour: {
+        type: Number,
+        required: true
+    },
     additionalInfo: {
         type: String,
     },

@@ -1,22 +1,12 @@
 ## TODOS
 
-**Your code currently has two sides vendor and user side authentication methods. Reuse the code or generalize the code
-  to reduce redundancy**
-
-
-
-
-## Done
-***Established the database connection successfully and initialised the collection on ATLAS***
-***Developed the vendor schema model in vendorAuth.model.js file***
-***Dot-env file configured and secrets stored in successfully***
-***Configured the passport sessions and passportlocalmongoose along with local strategy***
-***Built the POST signup API***
-***Built the POST login API***
-***Sent the otp from backend to the vendor mobile number***
-***Set the structure in MVC***
-***Developed the listing page for the vendor with backend***
-***User signup and login complete***
-***Updating user information complete***
-***API for the landing page of the user is almost complete with all the listings for the user.***
-***Windowing for the user to see one listing is complete and User Authentication is completed***
+*** Correct the court schema to have only slots and court number. ***
+*** Then add pricePerHour and matType in the badminton hall schema. ***
+*** Change the references of badminton hall and court due to the above changes. ***
+*** Fetch the hall details correctly now. ***
+*** In the hall details, show the number of courts correctly, and add validation, if the vendor adds extra halls,
+it should not be more than the vendor set limit. ***
+*** Add the court details and their slots in the hall details section! ***
+*** Add a checkout page, when the user clicks on the court, there should be add button on each court,
+    it should add the court to the cart, and then the user can checkout. ***
+*** Then add the book button, which will book the court and show the booking details and send the email to both vendor and user. ***

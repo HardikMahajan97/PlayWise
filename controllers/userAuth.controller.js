@@ -104,9 +104,6 @@ export const updateUserInfo = async(req, res) => {
     }
 };
 
-
-//Post method which checks if the phone number and the user exists, and then generated the otp while rendering,
-//the otp page which prompts the user to submit the otp sent on the provided contact number.
 export const validateAndGenerateOtp = async(req, res) => {
     try {
         const {contact} = req.body;
@@ -132,12 +129,9 @@ export const validateAndGenerateOtp = async(req, res) => {
         });
         console.log("Message sent:", message.sid);
 
-
-        //Render the otp form to submit the otp, instead of this;
         return res.status(200).json({success: true, message:`Your otp is sent successfully.`});
     }
     catch (error) {
-        // console.error("Error sending OTP:", error);
         return res.status(400).json({success:false, message:`Something went wrong! ${error.message}`});
     }
 };

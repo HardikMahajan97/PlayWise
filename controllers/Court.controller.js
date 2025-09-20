@@ -9,19 +9,19 @@ import generateCourtEmail from "../utils/generateCourtEmails.js";
 
 async function sendMailToVendor(vendorId, court, actionType, extraDetails = {}) {
     const vendor = await VendorInfo.findById(vendorId);
-    const emailContent = generateCourtEmail(actionType, court.name, extraDetails);
-    await sendEmail(vendor.email, `🏸 Court Update: ${court.name}`, emailContent);
+    const emailContent = generateCourtEmail(actionType, court.number, extraDetails);
+    await sendEmail(vendor.email, `🏸 Court Update: ${court.number}`, emailContent);
 }
 export const createCourt = async (req, res) => {
     try {
         const {hallId, vendorId} = req.params;
         console.log(req.params);
 
-        const {name, matType, pricePerHour} = req.body;
+        const {number} = req.body;
 
         console.log("Creating court for hallId:", hallId);
-        console.log("Received data:", {name, matType, pricePerHour});
-        if (!hallId || !name || !matType || !pricePerHour || !vendorId) {
+        console.log("Received data:", {number});
+        if (!hallId || !number || !vendorId) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
@@ -29,12 +29,16 @@ export const createCourt = async (req, res) => {
         if (!hall) {
             return res.status(404).json({ success: false, message: "Badminton hall not found" });
         }
+        const existingCourt = await Court.findOne({ hallId: hallId, number: number });
+        if(existingCourt) return res.status(400).json({ success: false, message: "Court with this number already exists in this hall" });
+        const courtsInHall = await Court.find({ hallId: hallId }).countDocuments();
+        if(courtsInHall > hall.numberOfCourts) {
+            return res.status(400).json({ success: false, message: `This hall can only have ${hall.numberOfCourts} courts` });
+        }
 
         const newCourt = new Court({
             hallId: hallId,
-            name: name,
-            matType: matType,
-            pricePerHour: pricePerHour
+            number: number
         });
         await newCourt.save();
 
@@ -93,8 +97,11 @@ export const getCourtById = async (req, res) => {
     try {
         const court = await Court.findById(req.params.courtId);
         if (!court) return res.status(404).json({ error: "Court not found" });
+        const vendor = await VendorInfo.findById(req.params.vendorId);
+        if(!vendor) return res.status(404).json({ error: "Vendor not found" });
+        const hall = await BadmintonHall.findById(court.hallId);
 
-        res.json({ success: true, data: court });
+        res.json({ success: true, data: { court, vendor, hall} });
     } catch (err) {
         res.status(500).json({ error: "Internal Server Error, could not fetch court!" });
     }

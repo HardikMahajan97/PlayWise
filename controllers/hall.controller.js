@@ -46,7 +46,7 @@ export const showHall = async(req, res) => {
 export const createHall = async (req, res) => {
     try{
         const {
-            name, address, city, state, pincode, amenities, image, numberOfCourts, additionalInfo
+            name, address, city, state, pincode, amenities, image, numberOfCourts, additionalInfo, pricePerHour, matType
         } = req.body;
 
         if(
@@ -57,7 +57,9 @@ export const createHall = async (req, res) => {
         !image || 
         !amenities ||
         !pincode ||
-        !numberOfCourts
+        !numberOfCourts ||
+        !pricePerHour ||
+        !matType
     )
         {
             return res.status(404).json({success: false, message: "Details not given properly, enter all the details."});
@@ -79,6 +81,8 @@ export const createHall = async (req, res) => {
             numberOfCourts: numberOfCourts,
             additionalInfo: additionalInfo,
             pincode: pincode,
+            pricePerHour: pricePerHour,
+            matType: matType,
             vendorId: vendorId
         });
         const savedHall = await newCourt.save();

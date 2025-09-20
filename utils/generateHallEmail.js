@@ -1,5 +1,5 @@
 export default function generateHallEmail(actionType, hall, vendorName, updatedFields = {}) {
-    const { name, address, city, state, numberOfCourts, image, amenities } = hall;
+    const { name, address, city, state, numberOfCourts, image, amenities, matType, pricePerHour } = hall;
 
     let title = "";
     let message = "";

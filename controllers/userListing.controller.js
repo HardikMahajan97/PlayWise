@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from "dotenv";
 import BadmintonHall from '../models/BadmintonHall.model.js';
+import Court from '../models/Court.model.js';
 const app = express();
 dotenv.config();
 
@@ -23,16 +24,84 @@ export const showAllListingsToTheUser = async (req, res) => {
             });
         }
 
+
         // Fetch halls with pagination
-        const listings = await BadmintonHall.find({})
-            .populate({
-                path: 'vendorId',
-                select: 'Name email contact' // Only select necessary fields
-            })
-            .skip(skip)
-            .limit(limit)
-            .lean()
-            .exec();
+        const listings = await BadmintonHall.aggregate([
+            // Join with courts
+            {
+                $lookup: {
+                    from: "courts", // collection name (plural)
+                    localField: "_id",
+                    foreignField: "hallId",
+                    as: "courts"
+                }
+            },
+            // Join with vendors
+            {
+                $lookup: {
+                    from: "vendorinfos", // collection name (lowercase plural of model)
+                    localField: "vendorId",
+                    foreignField: "_id",
+                    as: "vendor"
+                }
+            },
+            {
+                $unwind: "$vendor" // convert vendor array to object
+            },
+            {
+                $project: {
+                    name: 1,
+                    city: 1,
+                    address: 1,
+                    pincode: 1,
+                    state: 1,
+                    image: 1,
+                    numberOfCourts: 1,
+                    amenities: 1,
+                    additionalInfo: 1,
+                    pricePerHour: 1,
+                    matType: 1,
+                    courts: {
+                        $map: {
+                            input: "$courts",
+                            as: "court",
+                            in: {
+                                _id: "$$court._id",
+                                number: "$$court.number",
+                            }
+                        }
+                    },
+                    vendor: {
+                        _id: "$vendor._id",
+                        name: "$vendor.name",
+                        email: "$vendor.email",
+                        contact: "$vendor.contact"
+                    }
+                }
+            }
+        ]);
+        const responseObject = listings.map(hall => {
+            return {
+                hallId: hall._id,
+                hallName: hall.name,
+                address: hall.address,
+                city: hall.city,
+                state: hall.state,
+                pincode: hall.pincode,
+                image: hall.image,
+                numberOfCourts: hall.numberOfCourts,
+                amenities: hall.amenities,
+                additionalInfo: hall.additionalInfo,
+                pricePerHour: hall.pricePerHour,
+                matType: hall.matType,
+
+                vendorId: hall.vendor._id,
+                vendorName: hall.vendor.name,
+                vendorEmail: hall.vendor.email,
+                vendorContact: hall.vendor.contact,
+            };
+        });
+
 
         console.log(`Found ${listings.length} halls`);
 
@@ -41,7 +110,7 @@ export const showAllListingsToTheUser = async (req, res) => {
             totalHalls,
             currentPage: page,
             totalPages: Math.ceil(totalHalls / limit),
-            halls: listings
+            halls: responseObject
         });
 
     } catch (error) {
@@ -53,34 +122,19 @@ export const showAllListingsToTheUser = async (req, res) => {
         });
     }
 };
-// export const showAllListingsToTheUser = async (req, res) => {
-//     try {
-//         console.log("Fetching all listings...");
-//
-//         const listings = await BadmintonHall.find({})
-//             .populate({path:'vendorId', select:'Name email contact'}) //Instead of giving vendorId, it will give me the
-//             //information of the vendor. If it is getting difficult to understand ask out on Google.
-//             .exec(); //Executes
-//
-//         console.log("Fetched listings");
-//         return res.status(200).json(listings);
-//     } catch (e) {
-//         console.error("Error fetching listings:", e);
-//         return res.status(500).json({ success: false, message: "Internal Server Error", error: e.message });
-//     }
-// };
 
 export const getOneParticularListing = async(req, res) => {
     try{
         const {userId, hallId}= req.params;
         console.log("Reached the function");
-        const listing = await BadmintonHall.findById(hallId)
-            .populate({path:'vendorId', select:'Name email contact'}) //Instead of giving vendorId, it will give me the
+        const hall = await BadmintonHall.findById(hallId)
+            .populate({path:'vendorId', select:'name email contact'}) //Instead of giving vendorId, it will give me the
             //information of the vendor. If it is getting difficult to understand ask out on Google.
             .exec(); //Executes
+        const courts = await Court.find({hallId: hall});
         console.log("Sending your hall!");
 
-        return res.status(200).json({success: true, data: {listing, userId, hallId}});
+        return res.status(200).json({success: true, data: {hall, courts}});
 
     } catch(e){
         console.log(e.message);
