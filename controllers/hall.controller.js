@@ -46,7 +46,7 @@ export const showHall = async(req, res) => {
 export const createHall = async (req, res) => {
     try{
         const {
-            name, address, city, state, pincode, amenities, image, numberOfCourts, additionalInfo, pricePerHour, matType
+            name, address, city, state, amenities, image, numberOfCourts, additionalInfo, pricePerHour, matType
         } = req.body;
 
         if(
@@ -56,7 +56,6 @@ export const createHall = async (req, res) => {
         !name ||
         !image || 
         !amenities ||
-        !pincode ||
         !numberOfCourts ||
         !pricePerHour ||
         !matType
@@ -80,7 +79,6 @@ export const createHall = async (req, res) => {
             amenities: amenities,
             numberOfCourts: numberOfCourts,
             additionalInfo: additionalInfo,
-            pincode: pincode,
             pricePerHour: pricePerHour,
             matType: matType,
             vendorId: vendorId

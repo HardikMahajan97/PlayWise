@@ -12,6 +12,7 @@ async function sendMailToVendor(vendorId, court, actionType, extraDetails = {}) 
     const emailContent = generateCourtEmail(actionType, court.number, extraDetails);
     await sendEmail(vendor.email, `🏸 Court Update: ${court.number}`, emailContent);
 }
+
 export const createCourt = async (req, res) => {
     try {
         const {hallId, vendorId} = req.params;

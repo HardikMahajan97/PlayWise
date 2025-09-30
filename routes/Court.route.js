@@ -10,7 +10,7 @@ import {
     setAvailability,
     updateAvailability
 } from "../controllers/Court.controller.js";
-
+  
 router.route('/courts').post(createCourt);
 router.route('/courts/:courtId')
     .put(updateCourt)
