@@ -8,34 +8,51 @@ import sendEmail from "../utils/SendEmail.js";
 
 export const createBooking = async (req, res) => {
     try {
-        const { date, slot } = req.body;
-        const {hallId, courtId, userId} = req.params;
+        const { date, slot, customerDetails } = req.body; // Added customerDetails
+        const { hallId, courtId } = req.params; // Removed userId from params
 
-        if (!userId || !hallId || !courtId || !date || !slot)
+        if (!hallId || !courtId || !date || !slot || !customerDetails) {
             return res.status(400).json({ error: "Missing fields." });
+        }
+
+        // Create or find user based on email
+        let user = await User.findOne({ email: customerDetails.email });
+        if (!user) {
+            user = new User({
+                name: customerDetails.fullName,
+                email: customerDetails.email,
+                contact: customerDetails.phone,
+                age: 0
+            });
+            await user.save();
+        }
 
         const [court, hall] = await Promise.all([
             Court.findById(courtId),
             BadmintonHall.findById(hallId)
         ]);
+
         if (!court || !hall) return res.status(404).json({ error: "Court or Hall not found." });
         if (String(court.hallId) !== String(hallId))
             return res.status(400).json({ error: "Court not part of Hall." });
 
-        const dayOfWeek = new Date(date).toLocaleDateString("en-US", { weekday: "long" });
-        const availability = await CourtAvailability.findOne({ courtId: courtId, dayOfWeek: dayOfWeek });
-        if (!availability || !availability.slots.includes(slot))
-            return res.status(400).json({ error: "Slot not available on this day." });
+        // const dayOfWeek = new Date(date).toLocaleDateString("en-US", { weekday: "long" });
+        // const availability = await CourtAvailability.findOne({ courtId: courtId, dayOfWeek: dayOfWeek });
+        // if (!availability || !availability.slots.includes(slot))
+        //     return res.status(400).json({ error: "Slot not available on this day." });
 
-        const existing = await Booking.findOne({ courtId: courtId, date: date, slot: slot });
+        const existing = await Booking.findOne({ 
+            courtId: [courtId], // Fixed array structure
+            date: date, 
+            slot: slot 
+        });
         if (existing) return res.status(409).json({ error: "Slot already booked." });
 
-        const vendorId = hall.vendorId;
         const booking = new Booking({
-            userId: userId,
+            userId: user._id,
             hallId: hallId,
-            courtId: courtId,
-            vendorId: vendorId,
+            courtId: [courtId], // Fixed array structure
+            vendorId: hall.vendorId,
             date: date,
             slot: slot,
             price: hall.pricePerHour,
@@ -44,23 +61,33 @@ export const createBooking = async (req, res) => {
 
         await booking.save();
 
-        const user = await User.findById(userId);
-        const courtDetails = await Court.findById(courtId);
-        const hallDetails = await BadmintonHall.findById(hallId);
+        // Send email only for first booking or add a flag
+        const shouldSendEmail = req.body.sendEmail !== false;
+        if (shouldSendEmail) {
+            const courtDetails = await Court.findById(courtId);
+            const emailHtml = generateUserBookingEmail(
+                user.name,
+                courtDetails,
+                hall,
+                { date, slot, price: hall.pricePerHour }
+            );
+            await sendEmail(user.email, "🎉 Booking Confirmed at " + hall.name, emailHtml);
+        }
 
-        const emailHtml = generateUserBookingEmail(
-            user.name,
-            courtDetails,
-            hallDetails,
-            { date, slot, price: hallDetails.pricePerHour }
-        );
-
-        await sendEmail(user.email, "🎉 Booking Confirmed at " + hallDetails.name, emailHtml);
-        return res.status(201).json({ message: "Booking confirmed!", data: booking });
+        return res.status(201).json({ 
+            success: true,
+            message: "Booking confirmed!", 
+            data: { booking, user: { name: user.name, email: user.email } }
+        });
     } catch (err) {
-        res.status(500).json({ error: "Internal server error, could not create booking!", message: err.message });
+        res.status(500).json({ 
+            success: false,
+            error: "Internal server error, could not create booking!", 
+            message: err.message 
+        });
     }
 };
+
 
 export const getMyBookings = async (req, res) => {
     try {

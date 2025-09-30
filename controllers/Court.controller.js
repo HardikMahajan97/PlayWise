@@ -33,7 +33,7 @@ export const createCourt = async (req, res) => {
         const existingCourt = await Court.findOne({ hallId: hallId, number: number });
         if(existingCourt) return res.status(400).json({ success: false, message: "Court with this number already exists in this hall" });
         const courtsInHall = await Court.find({ hallId: hallId }).countDocuments();
-        if(courtsInHall > hall.numberOfCourts) {
+        if(courtsInHall + 1 > hall.numberOfCourts) {
             return res.status(400).json({ success: false, message: `This hall can only have ${hall.numberOfCourts} courts` });
         }
 
@@ -109,10 +109,13 @@ export const getCourtById = async (req, res) => {
 };
 export const getAllCourts = async (req, res) => {
     try {
-        const courts = await Court.find({ hallId: req.params.hallId }, {multi:true});
+        const courts = await Court.find({ hallId: req.params.hallId }, {multi:true})
+        .populate('hallId', 'name pricePerHour matType amenities image numberOfCourts');
+
         if (!courts || courts.length === 0) {
             return res.status(404).json({ success: false, message: "No courts found for this hall" });
         }
+        console.log(courts);
         return res.status(200).json({success: true, data: courts});
     } catch (err) {
         return res.status(500).json({ success: false, message: "Internal Server Error, could not fetch courts!", error: err.message });

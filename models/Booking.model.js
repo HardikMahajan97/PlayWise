@@ -12,11 +12,13 @@ const BookingSchema = new Schema({
         ref: 'BadmintonHall',
         required: true
     },
-    courtId: {
+    courtId: [
+        {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Court',
         required: true
-    },
+        },
+    ],
     vendorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'VendorInfo',
