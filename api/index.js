@@ -11,17 +11,17 @@ import LocalStrategy from "passport-local";
 import twilio from "twilio";
 import {v4 as uuidv4} from "uuid";
 import cors from 'cors';
-import{Resend} from "resend";
+
 //************************File imports****************** */
-import VendorInfo from './models/vendorAuth.model.js';
-import BadmintonHall from './models/BadmintonHall.model.js';
-import User from "./models/userAuth.model.js"
-import hallRoutes from "./routes/hall.route.js";
-import vendorRoutes from "./routes/vendorAuth.route.js";
-import userRoutes from "./routes/userAuth.route.js";
-import listingRoutes from "./routes/userListing.route.js";
-import bookingRoutes from "./routes/Booking.route.js";
-import courtRoutes from "./routes/Court.route.js";
+import VendorInfo from '../models/vendorAuth.model.js';
+import BadmintonHall from '../models/BadmintonHall.model.js';
+import User from "../models/userAuth.model.js"
+import hallRoutes from "../routes/hall.route.js";
+import vendorRoutes from "../routes/vendorAuth.route.js";
+import userRoutes from "../routes/userAuth.route.js";
+import listingRoutes from "../routes/userListing.route.js";
+import bookingRoutes from "../routes/Booking.route.js";
+import courtRoutes from "../routes/Court.route.js";
 dotenv.config();
 
 //************Database Connections on ATLAS************* */
@@ -41,7 +41,6 @@ async function main() {
 
 //************************************************************* */
 let port = 5000;
-
 
 app.use(cors());
 app.use(express.json()); // Parse JSON bodies
