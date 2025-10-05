@@ -1,9 +1,11 @@
 {
   "name": "playwise",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node api/index.js",
+    "dev": "nodemon api/index.js"
   },
   "type": "module",
   "keywords": [],
@@ -13,24 +15,21 @@
   "dependencies": {
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
-    "express": "^4.21.1",
+    "express": "^5.1.0",
     "express-session": "^1.18.1",
     "form-data": "^4.0.2",
-    "mailgun": "^0.5.0",
-    "mailgun.js": "^11.1.0",
-    "moment": "^2.30.1",
-    "moments": "^0.0.2",
     "mongodb": "^6.10.0",
-    "mongoose": "^8.5.1",
-    "nodemailer": "^6.10.1",
-    "nodemon": "^3.1.4",
+    "mongoose": "^8.19.0",
+    "nodemailer": "^7.0.6",
     "passport": "^0.7.0",
     "passport-local-mongoose": "^8.0.0",
-    "playwise": "file:",
     "resend": "^4.1.2",
     "twilio": "^5.4.0",
     "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
