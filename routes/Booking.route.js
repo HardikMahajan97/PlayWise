@@ -1,7 +1,7 @@
 import express from 'express';
 
 const router = express.Router({mergeParams: true});
-import { createBooking, getMyBookings } from '../Controllers/Booking.controller.js';
+import { createBooking, getMyBookings } from '../controllers/Booking.controller.js';
 
 router.route("/create-booking/:hallId/:courtId").post(createBooking);
 
