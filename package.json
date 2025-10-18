@@ -1,11 +1,11 @@
 {
-  "name": "playwise",
+  "name": "playwise-api",
   "version": "1.0.0",
-  "main": "api/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node api/index.js",
-    "dev": "nodemon api/index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "type": "module",
   "keywords": [],
@@ -31,5 +31,10 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
+  },
+  "engines": {
+    "node": "20.14.0",
+    "npm": "10.9.0"
   }
+
 }

@@ -13,15 +13,15 @@ import {v4 as uuidv4} from "uuid";
 import cors from 'cors';
 
 //************************File imports****************** */
-import VendorInfo from '../models/vendorAuth.model.js';
-import BadmintonHall from '../models/BadmintonHall.model.js';
-import User from "../models/userAuth.model.js"
-import hallRoutes from "../routes/hall.route.js";
-import vendorRoutes from "../routes/vendorAuth.route.js";
-import userRoutes from "../routes/userAuth.route.js";
-import listingRoutes from "../routes/userListing.route.js";
-import bookingRoutes from "../routes/Booking.route.js";
-import courtRoutes from "../routes/Court.route.js";
+import VendorInfo from './models/vendorAuth.model.js';
+import BadmintonHall from './models/BadmintonHall.model.js';
+import User from "./models/userAuth.model.js"
+import hallRoutes from "./routes/hall.route.js";
+import vendorRoutes from "./routes/vendorAuth.route.js";
+import userRoutes from "./routes/userAuth.route.js";
+import listingRoutes from "./routes/userListing.route.js";
+import bookingRoutes from "./routes/Booking.route.js";
+import courtRoutes from "./routes/Court.route.js";
 dotenv.config();
 
 //************Database Connections on ATLAS************* */
@@ -30,19 +30,37 @@ const dbUrl = process.env.MONGO_URI;
 // console.log(dbUrl);
 main() 
     .then(() =>{
-        console.log("Connected to PlayWise DATABASE!");  
+        console.log("✅ Connected to PlayWise DATABASE!");  
     })
     .catch((err) => {
-        console.log(err);
+        console.log("❌ Database Connection Error:", err);
     });
 async function main() { 
     await mongoose.connect(dbUrl);  
 }
 
 //************************************************************* */
-let port = 5000;
+let port = process.env.PORT || 5000; // CHANGE: Use PORT from environment (Render provides this), fallback to 5000
 
-app.use(cors());
+// CHANGE: Updated CORS configuration to allow frontend from Vercel and local development
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests from frontend URL (Vercel), localhost, or no origin (same server)
+        const allowedOrigins = [
+            'http://localhost:5173',           // Vite dev server
+            'http://localhost:3000',           // Alternative dev port
+            process.env.FRONTEND_URL || '*'    // Vercel production frontend (set in Render env vars)
+        ];
+        
+        if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true // CHANGE: Added to support sessions across domains
+}));
+
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
@@ -55,8 +73,8 @@ const store = mongoStore.create({
     },
     touchAfter : 24 * 3600,  // It is nothing but updating itself after how many time if session is not updated or database has not interacted with the server.
 });
-store.on("error", () => {
-    console.log("ERROR in MONGO SESSION STORE", err);
+store.on("error", (err) => { // CHANGE: Fixed error handler - was missing 'err' parameter
+    console.log("❌ ERROR in MONGO SESSION STORE:", err);
 });
 app.use(
     session({
@@ -67,7 +85,11 @@ app.use(
         cookie:{        //Cookie expiry date is the deletion of the data stored. For eg. github login: Asks every one week to login again.
             expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // There default expiry is one week and hence deletes the cookie with the login credentials.
             maxAge : 7 * 24 * 60 * 60 * 1000,
-            httpOnly:true, // Only for security purposes.
+            httpOnly: true, // Only for security purposes.
+            // CHANGE: Added secure cookie for production (HTTPS only)
+            secure: process.env.NODE_ENV === 'production',
+            // CHANGE: Added sameSite for CSRF protection
+            sameSite: 'Lax' // Allows cookies with cross-site requests (needed for Vercel -> Render)
         },
     })
 );
@@ -99,7 +121,7 @@ passport.use("vendor-local", new LocalStrategy(
 
 // Serialize user for session
 passport.serializeUser((entity, done) => {
-    console.log("Serializing:", entity.constructor.modelName, entity.id);
+    console.log("📤 Serializing:", entity.constructor.modelName, entity.id);
     done(null, {
         id: entity.id,
         type: entity.constructor.modelName
@@ -109,7 +131,7 @@ passport.serializeUser((entity, done) => {
 // Deserialize user from session
 passport.deserializeUser(async (obj, done) => {
     try {
-        console.log("Deserializing:", obj.type, obj.id);
+        console.log("📥 Deserializing:", obj.type, obj.id);
 
         let Model;
         if (obj.type === "User") {
@@ -127,7 +149,7 @@ passport.deserializeUser(async (obj, done) => {
 
         done(null, user);
     } catch (err) {
-        console.error("Deserialization error:", err);
+        console.error("❌ Deserialization error:", err);
         done(err);
     }
 });
@@ -135,12 +157,13 @@ passport.deserializeUser(async (obj, done) => {
 //**************************************************** */
 //********************************************Routers************************************************* */
 
-app.listen(port, (req,res) => {
-    console.log("Listening on port " + port + ". Welcome to PlayWise!");
-});
-
 app.get("/", (req,res) => {
     res.send("Port Checking successful ! Welcome to PlayWise");
+});
+
+// Health check endpoint (used by Render to verify service is running)
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'PlayWise API is running' });
 });
 
 app.get("/home", (req, res) => {
@@ -206,3 +229,32 @@ app.get("/get-all-users", async(req, res) => {
         return res.status(500).json({message: e.message});
     }
 });
+
+// 404 error handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('❌ Error:', err.message);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error'
+  });
+});
+
+//**CHANGE: Export app for production deployment on Render (Render expects a module export)
+export default app;
+
+// CHANGE: Start server only if not in production with specific handling
+// In Render, the "start" command in package.json will run this file
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`🚀 Server running on http://localhost:${port}`);
+    });
+} else {
+    // In production (Render), still listen but don't log the URL
+    const server = app.listen(port, '0.0.0.0', () => {
+        console.log(`🚀 PlayWise API running on port ${port}`);
+    });
+}
