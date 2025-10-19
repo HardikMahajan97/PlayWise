@@ -49,7 +49,7 @@ app.use(cors({
         const allowedOrigins = [
             'http://localhost:5173',           // Vite dev server
             'http://localhost:3000',           // Alternative dev port
-            'https://playwise-frontend.vercel.app/',
+            'https://playwise-frontend.vercel.app',
             process.env.FRONTEND_URL || '*'    // Vercel production frontend (set in Render env vars)
         ];
         
@@ -88,9 +88,9 @@ app.use(
             maxAge : 7 * 24 * 60 * 60 * 1000,
             httpOnly: true, // Only for security purposes.
             // CHANGE: Added secure cookie for production (HTTPS only)
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
             // CHANGE: Added sameSite for CSRF protection
-            sameSite: 'Lax' // Allows cookies with cross-site requests (needed for Vercel -> Render)
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax' // Allows cookies with cross-site requests (needed for Vercel -> Render)
         },
     })
 );
