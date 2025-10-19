@@ -49,6 +49,7 @@ app.use(cors({
         const allowedOrigins = [
             'http://localhost:5173',           // Vite dev server
             'http://localhost:3000',           // Alternative dev port
+            'https://playwise-frontend.vercel.app/',
             process.env.FRONTEND_URL || '*'    // Vercel production frontend (set in Render env vars)
         ];
         
