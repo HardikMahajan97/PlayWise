@@ -41,10 +41,10 @@ export const createBooking = async (req, res) => {
         // if (!availability || !availability.slots.includes(slot))
         //     return res.status(400).json({ error: "Slot not available on this day." });
 
-        const existing = await Booking.findOne({ 
+        const existing = await Booking.findOne({
             courtId: [courtId], // Fixed array structure
-            date: date, 
-            slot: slot 
+            date: date,
+            slot: slot
         });
         if (existing) return res.status(409).json({ error: "Slot already booked." });
 

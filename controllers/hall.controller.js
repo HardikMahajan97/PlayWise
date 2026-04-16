@@ -31,7 +31,9 @@ export const showHall = async(req, res) => {
     try{
         const {hallId} = req.params;
         console.log(`Reached show Hall API with hall Id: ${hallId}`);
-        const hall = await BadmintonHall.findById(hallId).populate('vendorId', 'name email contact');
+        
+        const hall = await BadmintonHall.findById(hallId)
+        .populate('vendorId', 'name email contact');
         
         if(hall) return res.status(200).json({ success:true, data: hall});
         else return res.status(404).json({success:false, message:"Hall not found"});
